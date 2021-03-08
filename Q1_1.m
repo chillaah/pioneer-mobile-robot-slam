@@ -14,7 +14,6 @@ TR = [ cos(Q(3)) -sin(Q(3)) Q(1)
 %% Write a 3x3 homogeneous transformation matrix that describes the pose of the sensor 
 % with respect to the world coordinate frame.
 
-
 % Sensor with respect to robot
 Q2 = [0.4, -0.15, -8];
 
