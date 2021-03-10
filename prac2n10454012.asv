@@ -8,27 +8,28 @@ function prac2n10454012(robot)
 	robot.powerON();
     
     RAL = 0.331; % robot axle length
-    RL = 1 - RAL/2; % radius from center to left wheel
-    RR = 1 + RAL/2; % radius from center to right wheel
+    R = 1; % length from center to middle of axle (radius)
+    
+    RL = R - RAL/2; % radius from center to left wheel
+    RR = R + RAL/2; % radius from center to right wheel
     
     CL = 2 * pi * 0.0975; % circumference of left wheel
     CR = 2 * pi * 0.0975; % circumference of right wheel
     
-    % DL = 1; % distance
-    
     ROTL = 2 * pi * RL / CL; % number of rotations by left wheel
     ROTR = 2 * pi * RR / CR; % number of rotations by right wheel
     
-    T = 10; % time to complete
+    T = 15; % time to complete
     
     DPSL = (ROTL * 360) / T; % degrees per second of left wheel
-    DPSR = (ROTR * 360) / T; % 
+    DPSR = (ROTR * 360) / T; % degrees per second of right wheel
     
-    VELL = DPSL * pi/180;
-    VELR = DPSR * pi/180;
+    LINVELL = DPSL * pi/180; % radians per second of left wheel
+    LINVELR = DPSR * pi/180; % radians per second of right wheel
     
-    robot.setMotorVel(VELL,VELR)
+    robot.setMotorVel(LINVELL,LINVELR) % move robot clockwise
     
+    ANGVELL = LINVELL / 
     
 
 	%The function needs to end with the following calls; 

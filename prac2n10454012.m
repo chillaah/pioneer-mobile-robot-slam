@@ -24,10 +24,13 @@ function prac2n10454012(robot)
     DPSL = (ROTL * 360) / T; % degrees per second of left wheel
     DPSR = (ROTR * 360) / T; % degrees per second of right wheel
     
-    VELL = DPSL * pi/180; % radians per second of left wheel
-    VELR = DPSR * pi/180; % radians per second of right wheel
+    ANGVELL = DPSL * pi/180; % radians per second of left wheel
+    ANGVELR = DPSR * pi/180; % radians per second of right wheel
     
-    robot.setMotorVel(VELL,VELR) % move robot clockwise
+    robot.setMotorVel(ANGVELL, ANGVELR) % move robot clockwise
+    
+    LINVELL = RL * ANGVELL; % meters per second of left wheel
+    LINVELR = RR * ANGVELR; % meters per second of right wheel
     
 
 	%The function needs to end with the following calls; 
