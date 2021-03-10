@@ -27,11 +27,18 @@ function prac2n10454012(robot)
     ANGVELL = DPSL * pi/180; % radians per second of left wheel
     ANGVELR = DPSR * pi/180; % radians per second of right wheel
     
-    robot.setMotorVel(ANGVELL, ANGVELR) % move robot clockwise
+    robot.setMotorVel(ANGVELL, ANGVELR) % move robot anti-clockwise
     
     LINVELL = RL * ANGVELL; % meters per second of left wheel
     LINVELR = RR * ANGVELR; % meters per second of right wheel
     
+    ANGVEL = norm([ANGVELL ANGVELR]); % total angular velocity
+    LINVEL = norm([LINVELL LINVELR]); % total linear velocity
+    
+    disp(' ');
+    disp(ANGVEL); disp('rad/s');
+    disp(' ');
+    disp(LINVEL); disp('m/s');
 
 	%The function needs to end with the following calls; 
 	%otherwise, your code will not run during automarking.
