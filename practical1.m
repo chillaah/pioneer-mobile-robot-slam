@@ -1,3 +1,5 @@
+%% EGB439 Practical 1
+
 close all; clear; clc
 
 sim = remApi('remoteApi'); % using ther prototype file
