@@ -38,6 +38,7 @@ function prac2n10454012(robot)
     disp(' ');
     disp(ANGVEL); disp('rad/s');
     disp(' ');
+    disp(' ');
     disp(LINVEL); disp('m/s');
 
 	%The function needs to end with the following calls; 
