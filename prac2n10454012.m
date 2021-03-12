@@ -7,9 +7,44 @@ function prac2n10454012(robot)
 	%otherwise, your code will not run during automarking.
 	robot.powerON();
     
-    V = 2*pi/15;
-    [lWv, rWv] = practical2(V);
+    [x, y, theta] = robot.getTruePose();
+    pause(1);
+    V = 1;
+    W = 1;
+    [lWv, rWv] = practical2(V, W);
     robot.setMotorVel(lWv, rWv);
+    
+    while (pause(2*pi))
+        [x2(:,1), y2(:,1), theta(:,1)] = robot.getTruePose();
+    end
+    
+    for i = 1:size(x2,2)
+        scatter(x2(1,i), y2(1,i));
+        hold on
+    end
+    hold off
+        
+%     figure();
+%     t = clock;
+%     while (t(6) <= 2*pi)
+%         [x2, y2] = robot.getTruePose();
+%         scatter(x2, y2);
+%         drawnow
+%         hold on
+%     end
+%     hold off
+    
+    
+%     stop = false;
+%     while(stop)
+%         [x2, y2, theta2] = robot.getTruePose();
+%         
+%         if (x == x2 || y == y2 || theta == theta2)
+%             stop = true;
+%             robot.setMotorVel(0, 0);
+%         end
+%     end
+    
     
 %     RAL = 0.331; % robot axle length
 %     R = 1; % length from center to middle of axle (radius)

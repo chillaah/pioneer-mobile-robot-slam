@@ -1,13 +1,13 @@
 %% EGB439 Practical 2
 
-function [lWv, rWv] = practical2(V)
+function [lWv, rWv] = practical2(V, W)
 
     desiredLinearVel = V;
-    % desiredAngularVel = W;
+    desiredAngularVel = W;
     
-    circleRadius = 1; % length from center to middle of axle (radius)
+    circleRadius = desiredLinearVel / desiredAngularVel; % length from center to middle of axle (radius)
     linearDistance = 2*pi*circleRadius;
-    timeLinear = linearDistance / desiredLinearVel;
+    timeLinear =  circleRadius * linearDistance / desiredLinearVel; % figure out time
     robotAxleLength = 0.331;
     
     leftRadius = circleRadius - robotAxleLength/2; % radius from center to left wheel
