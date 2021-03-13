@@ -14,15 +14,31 @@ function prac2n10454012(robot)
     [lWv, rWv] = practical2(V, W);
     robot.setMotorVel(lWv, rWv);
     
-    while (pause(2*pi))
-        [x2(:,1), y2(:,1), theta(:,1)] = robot.getTruePose();
+%     tic
+%     figure();
+    
+    for i = 1:54
+        pause(0.1);
+        [x2(i,1), y2(i,1)] = robot.getTruePose();
+        scatter(x2(i,1), y2(i,1), 'r');
+        grid on
+        box on
+        hold on
+        %t = toc;
+        %if t > 10
+        %    hold off
+        %    break;
+        %end
     end
     
-    for i = 1:size(x2,2)
-        scatter(x2(1,i), y2(1,i));
-        hold on
-    end
     hold off
+   
+%     
+%     for i = 1:size(x2,2)
+%         scatter(x2(1,i), y2(1,i));
+%         hold on
+%     end
+%     hold off
         
 %     figure();
 %     t = clock;
