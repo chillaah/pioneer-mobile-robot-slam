@@ -18,7 +18,8 @@ fprintf("Connected! ID: %d\n", robot.getClientID());
 % 3. Don't forget to add the location of your solution function,
 %   the remote API files, and the MyRobot.m file using 'addpath'
 
-addpath /Users/chilla/Desktop/pioneer-mobile-robot-slam/;
+% addpath /Users/chilla/Desktop/pioneer-mobile-robot-slam/;
+% addpath C:/Users/user/OneDrive - Queensland University of Technology/Desktop;
 
 % 4. Edit the name of the function to match the name of your solution
 %   function. Eg 

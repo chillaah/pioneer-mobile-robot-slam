@@ -41,10 +41,10 @@ function [lWv, rWv] = practical2(V, W)
         circleRadius = desiredLinearVel / desiredAngularVel; % length from center to middle of axle (radius)
         
         linearDistance = 2*pi*circleRadius;
-        timeLinear = linearDistance / desiredLinearVel - 3; % figure out time
+        timeLinear = linearDistance / desiredLinearVel; % figure out time
 
-        leftRadius = circleRadius - (robotAxleLength/2); % radius from center to left wheel
-        rightRadius = circleRadius + (robotAxleLength/2); % radius from center to right wheel
+        leftRadius = circleRadius - robotAxleLength/2; % radius from center to left wheel
+        rightRadius = circleRadius + robotAxleLength/2; % radius from center to right wheel
 
         % number of rotations by each wheel
         numRotLeft = leftRadius / radiusWheel;
@@ -52,7 +52,7 @@ function [lWv, rWv] = practical2(V, W)
 
         % velocity of each wheel in degrees per second
         degPerSecLeft = (numRotLeft * 360) / timeLinear;
-        degPerSecRight = (numRotRight * 360) / timeLinear;% - 50;
+        degPerSecRight = (numRotRight * 360) / timeLinear;
         
         % velocity in radians per second
         lWv = degPerSecLeft * pi/180;
