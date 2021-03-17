@@ -10,7 +10,7 @@ function prac2n10454012(robot)
     
     [x, y, theta] = robot.getTruePose();
     pause(1);
-    V = 1;
+    V = 1.5;
     W = 1;
     [lWv, rWv] = practical2(V, W);
     robot.setMotorVel(lWv, rWv);

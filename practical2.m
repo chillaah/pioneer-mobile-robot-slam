@@ -31,8 +31,6 @@ function [lWv, rWv] = practical2(V, W)
         lWv = degPerSecLeft * pi/180;
         rWv = degPerSecRight * pi/180;
         
-        disp('ok');
-        
     elseif desiredAngularVel == 0 && desiredLinearVel ~= 0
         % moves straight
         % both left and right move with same speed
