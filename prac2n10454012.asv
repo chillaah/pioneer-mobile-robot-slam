@@ -34,18 +34,14 @@ function prac2n10454012(robot)
     
     hold off
     
-    if V == 1 && W == 1
-        
-        ylength = max(y2) - min(y2);
-        xlength = max(x2) - min(x2);
-        
-        yerror = (2 - ylength)/2 * 100;
-        xerror = (2 - xlength)/2 * 100;
-        
-        disp(' '); disp('y off by'); disp(yerror); disp('[cm]');
-        disp(' '); disp('x off by'); disp(xerror); disp('[cm]');
-        
-    end
+    ylength = max(y2) - min(y2);
+    xlength = max(x2) - min(x2);
+    
+    yerror = (2 - ylength)/2;
+    xerror = (2 - xlength)/2;
+    
+    disp(' '); disp('y off by'); disp(yerror);
+    disp(' '); disp('x off by'); disp(xe);
 
 	%The function needs to end with the following calls; 
 	%otherwise, your code will not run during automarking.

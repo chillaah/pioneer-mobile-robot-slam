@@ -11,10 +11,10 @@ function [lWv, rWv] = practical2(V, W)
     if desiredLinearVel == 0 && desiredAngularVel ~= 0
         % just right moves
         % so it turns on the spot
-        circleRadius = desiredLinearVel / desiredAngularVel; % length from center to middle of axle (radius)
+        circleRadius = robotAxleLength/2; % length from center to middle of axle (radius)
         
-        linearDistance = 2*pi*circleRadius;
-        timeLinear =  circleRadius * linearDistance / desiredLinearVel; % figure out time
+        angularDistance = 2*pi;
+        timeLinear = angularDistance / desiredAngularVel; % figure out time
 
         leftRadius = circleRadius - robotAxleLength/2; % radius from center to left wheel
         rightRadius = circleRadius + robotAxleLength/2; % radius from center to right wheel
@@ -31,9 +31,12 @@ function [lWv, rWv] = practical2(V, W)
         lWv = degPerSecLeft * pi/180;
         rWv = degPerSecRight * pi/180;
         
+        disp('ok');
+        
     elseif desiredAngularVel == 0 && desiredLinearVel ~= 0
         % moves straight
         % both left and right move with same speed
+        linearDistance = 
         
     else
         % normal hybrid functioning
@@ -43,8 +46,8 @@ function [lWv, rWv] = practical2(V, W)
         linearDistance = 2*pi*circleRadius;
         timeLinear = linearDistance / desiredLinearVel; % figure out time
 
-        leftRadius = circleRadius - robotAxleLength/2; % radius from center to left wheel
-        rightRadius = circleRadius + robotAxleLength/2; % radius from center to right wheel
+        leftRadius = circleRadius - (robotAxleLength/2); % radius from center to left wheel
+        rightRadius = circleRadius + (robotAxleLength/2); % radius from center to right wheel
 
         % number of rotations by each wheel
         numRotLeft = leftRadius / radiusWheel;
