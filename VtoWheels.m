@@ -20,35 +20,37 @@ end
 %%
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%     x2 = size(1,100);
+%     y2 = size(1,100);
+%     
+%     for i = 1:100    
+%         [x2(:,i), y2(:,i)] = robot.getTruePose();
+%         pause(0.1);
+%     end
+%     
+%     figure();
+%     grid on
+%     box on 
+%     hold on
+%     
+%     for j = 1:100
+%         plot(x2(:,j), y2(:,j), 'ro');
+%     end
+%     
+%     hold off
+%     
+%     if V == 1 && W == 1
+%         
+%         ylength = max(y2) - min(y2);
+%         xlength = max(x2) - min(x2);
+%         
+%         yerror = (2 - ylength)/2 * 100;
+%         xerror = (2 - xlength)/2 * 100;
+%         
+%         disp(' '); disp('y off by'); disp(yerror); disp('[cm]');
+%         disp(' '); disp('x off by'); disp(xerror); disp('[cm]');
+%         
+%     end
 
 %     desiredLinearVel = V;
 %     desiredAngularVel = W;
