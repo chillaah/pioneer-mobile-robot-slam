@@ -2,7 +2,7 @@
 % For example, if your student number is n12345678 and this is a solution for Prac 2, 
 % then you should name this function prac2n12345678
 
-function prac3n01234567(robot)
+function prac3n10454012(robot)
 	% The function needs to start with the following call; 
 	%otherwise, your code will not run during automarking.
 	robot.powerON();
