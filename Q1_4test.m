@@ -1,4 +1,4 @@
-%% Q1.4
+%% Q1.4 test
 
 %----- YOUR CODE GOES BELOW HERE -----
 
@@ -85,5 +85,26 @@ function vel = control(q, point)
     % q is the initial configuration vector (x, y, theta) in units of metres and radians
     % point is the vector (x, y) specifying the goal point of the robot
     
+    x = q(1);
+    y = q(2);
+    theta = q(3);
+    
+    point_x = point(1);
+    point_y = point(2);
+    
+    ydiff = point_y - y;
+    xdiff = point_x - x;
+    
+    headingAngle = atan2(ydiff,xdiff);
+    ang = headingAngle - theta;
+    
+    if ang > pi
+        ang = ang - 2*pi;
+    elseif ang < -pi
+        ang = ang + 2*pi;
+    end
+    
+    vel = 0;
+        
     
 end
