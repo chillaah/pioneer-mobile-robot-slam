@@ -71,6 +71,12 @@ function qnew = qupdate(q, vel, dt)
     % qnew is the new configuration vector vector (x, y, theta) in units of metres and radians at the
     % end of the time interval.
     
+    % qdot
+    qd = qdot(q, vel);
+    
+    % end of time
+    qextra = dt*qd;
+    qnew = q + qextra;
     
 end
 
