@@ -11,16 +11,5 @@ function vel = control(q, R, speed, path)
 
     % clever stuff
     
-    % robot inital position
-    x = q(1);
-    y = q(2);
-    theta = q(3);
     
-    while (V < -0.5); V = -0.5; end
-    while (V > 0.5); V = 0.5; end
-    
-    while (W < -0.5); W = -0.5; end
-    while (W > 0.5); W = 0.5; end
-   
-    vel = [V W];
 end

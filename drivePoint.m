@@ -1,28 +1,30 @@
 function [lWv, rWv] = drivePoint(q, GOAL)
-    
-% constants
-Kh = 0.8; %0.8;
-Kv = 0.4; %0.4;
 
-% goal heading
-theta_goal = atan2(GOAL(2) - q(2), GOAL(1) - q(1));
+Kh = 0.8;
+Kv = 0.4; 
 
-% heading angle error
-e = theta_goal - q(3);
+pos_x = q(1); pos_y = q(2); pos_theta = q(3);
+goal_x = GOAL(1); goal_y = GOAL(2);
 
-while (e >  pi); e = e-2*pi; end
-while (e < -pi); e = e+2*pi; end
+goal_theta = atan2(goal_y - pos_y, goal_x - pos_x);
+heading_error = goal_theta - pos_theta;
 
-% turning speed
-omega = Kh * e;
-omega = min(omega, 0.5);
-omega = max(omega, -0.5);
+while heading_error >  pi
+    heading_error = heading_error - 2*pi;
+end
 
-% forward speed
-v = Kv*sqrt((GOAL(1) - q(1))^2 + (GOAL(2) - q(2))^2);
-vel = Kv * v;
-vel = min(vel, 0.1);
+while heading_error < -pi
+    heading_error = heading_error + 2*pi; 
+end
 
-[lWv, rWv] = VtoWheels(vel, omega);
+W = Kh * heading_error;
+W = min(W, 0.5);
+W = max(W, -0.5);
+
+pos_error = sqrt((goal_x - pos_x)^2 + (goal_y - pos_y)^2);
+V = Kv * pos_error;
+V = min(V, 0.3);
+
+[lWv, rWv] = VtoWheels(V, W);
 
 end

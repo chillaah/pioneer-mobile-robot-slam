@@ -29,7 +29,9 @@ TS = TR * SR; % from world to robot and then from robot to sensor
 %% Write the position of the navigation target relative to the sensor in polar 
 % coordinate form as a 2x1 vector  (in units of metres and degrees, respectively)
 
-NP = [-1.2 6.6]; % navigation sensor
-PD = [Q(1)+Q2(1)-NP(1) Q(2)+Q2(2)-NP(2)];
-PP = [norm(PD) atan2d(PD(1), PD(2))]; % double check this and everything else
+% navigation sensor
+NP = TS \ [-1.2; 6.6; 1];
+
+LEN = [NP(1,1) NP(2,1)];
+PP = [norm(LEN) atan2d(LEN(2),LEN(1))];
 

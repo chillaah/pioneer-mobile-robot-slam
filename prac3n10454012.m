@@ -21,7 +21,7 @@ function prac3n10454012(robot)
         [lWv, rWv] = drivePoint(q, GOAL);
 
         robot.setMotorVel(lWv, rWv);
-        pause(0.1)
+        %pause(0.1)
         
         tol_x = abs(goal_x - state_x);
         tol_y = abs(goal_y - state_y);

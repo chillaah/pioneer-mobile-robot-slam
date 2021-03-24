@@ -1,5 +1,3 @@
-%% Q1.4 test
-
 %----- YOUR CODE GOES BELOW HERE -----
 
 function wheelVel = vel2wheels(vel)
@@ -12,8 +10,8 @@ function wheelVel = vel2wheels(vel)
     radiusWheel = 0.0975;
     robotAxleLength = 0.331;
     
-    vel(1) = v;
-    vel(2) = omega;
+    v = vel(1);
+    omega = vel(2);
 
     vleft = (2*v - omega*robotAxleLength)/(2*radiusWheel);
     vright = (2*v + omega*robotAxleLength)/(2*radiusWheel);
@@ -85,26 +83,40 @@ function vel = control(q, point)
     % q is the initial configuration vector (x, y, theta) in units of metres and radians
     % point is the vector (x, y) specifying the goal point of the robot
     
-    x = q(1);
-    y = q(2);
-    theta = q(3);
-    
-    point_x = point(1);
-    point_y = point(2);
-    
-    ydiff = point_y - y;
-    xdiff = point_x - x;
-    
-    headingAngle = atan2(ydiff,xdiff);
-    ang = headingAngle - theta;
-    
-    if ang > pi
-        ang = ang - 2*pi;
-    elseif ang < -pi
-        ang = ang + 2*pi;
+    Kh = 0.8;
+    Kv = 0.4; 
+
+    pos_x = q(1); pos_y = q(2); pos_theta = q(3);
+    goal_x = point(1); goal_y = point(2);
+
+    goal_theta = atan2(goal_y - pos_y, goal_x - pos_x);
+    heading_error = goal_theta - pos_theta;
+
+    while heading_error >  pi
+        heading_error = heading_error - 2*pi;
     end
+
+    while heading_error < -pi
+        heading_error = heading_error + 2*pi; 
+    end
+
+    W = Kh * heading_error;
+    W = min(W, 0.5);
+    W = max(W, -0.5);
+
+    pos_error = sqrt((goal_x - pos_x)^2 + (goal_y - pos_y)^2);
+    V = Kv * pos_error;
+    V = min(V, 0.3);
     
-    vel = 0;
-        
-    
+    tol_x = abs(goal_x - pos_x);
+    tol_y = abs(goal_y - pos_y);
+
+    tol = sqrt(tol_x^2 + tol_y^2);
+
+    if tol < 1/100
+        vel = [0, 0];
+    else
+            vel = [V W];
+    end
+
 end
