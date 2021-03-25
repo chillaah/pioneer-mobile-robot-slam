@@ -9,7 +9,14 @@ function vel = control(q, R, speed, path)
 % Return:
 %  vel is a 1x2 vector containing the requested velocity and turn rate of the robot [v, omega]
 
-    % clever stuff
-    
-    
+% clever stuff
+
+pos_x = q(1);
+pos_y = q(2);
+pos_theta = q(3);
+
+
+
+vel = [V W];
+
 end

@@ -32,6 +32,7 @@ TS = TR * SR; % from world to robot and then from robot to sensor
 % navigation sensor
 NP = TS \ [-1.2; 6.6; 1];
 
+% coordinate form
 LEN = [NP(1,1) NP(2,1)];
-PP = [norm(LEN) atan2d(LEN(2),LEN(1))];
+PP = [norm(LEN) atan2d(LEN(2),LEN(1))].';
 
