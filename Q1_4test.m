@@ -48,16 +48,15 @@ function qd = qdot(q, vel)
     % Return:
     % qd is the vector (xdot, ydot, thetadot) in units of metres/s and radians/s
     
-    v = vel(1);
-    omega = vel(2);
+    V = vel(1);
+    W = vel(2);
     theta = q(3);
     
-    xdot = v*cos(theta);
-    ydot = v*sin(theta);
-    thetadot = omega;
+    x_dot = V * cos(theta);
+    y_dot = V * sin(theta);
+    theta_dot = W;
     
-    qd = [xdot ydot thetadot];
-    
+    qd = [x_dot y_dot theta_dot];
 end
 
 function qnew = qupdate(q, vel, dt)
@@ -73,9 +72,21 @@ function qnew = qupdate(q, vel, dt)
     qd = qdot(q, vel);
     
     % end of time
-    qextra = dt*qd;
-    qnew = q + qextra;
+    qint = dt * qd;
+    qnew = q + qint;
     
+    theta = qnew(3);
+    
+    if (theta >=  pi)
+        theta = theta - 2*pi;
+    end
+
+    if (theta < -pi)
+        theta = theta + 2*pi; 
+    end
+    
+    
+    qnew(3) = theta;
 end
 
 function vel = control(q, point)

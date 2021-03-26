@@ -7,9 +7,6 @@ car_w = 1.7;
 wbl = 3;
 steeringAngle = 15;
 
-RB = wbl/steeringAngle;
-LB = RB - car_w;
-
 V = -0.7;
 W = (V/wbl)*tand(steeringAngle);
 vel = [V W];
@@ -33,10 +30,8 @@ q = [0 0 0];
 pose(2,:) = qupdate(q, vel, dt);
 
 % iterating over poses using previous pose
-for i = 3:length(t)
-    
+for i = 3:length(t)   
     pose(i,:) = qupdate(pose(i-1,:), vel, dt);
-
 end
 
 pointx = zeros(length(t), length(car_pos));
@@ -44,7 +39,6 @@ pointy = zeros(length(t), length(car_pos));
 
 % pose coordinate location
 for i = 1:length(t)
-    
     H = [ cos(pose(i,3)) -sin(pose(i,3)) pose(i,1);
           sin(pose(i,3))  cos(pose(i,3)) pose(i,2);
                        0                0         1 ];
@@ -53,7 +47,6 @@ for i = 1:length(t)
     
     pointx(i,:) = coordinates(1,:);
     pointy(i,:) = coordinates(2,:);
-    
 end
 
 % plot
@@ -97,7 +90,6 @@ function qnew = qupdate(q, vel, dt)
     end
     
     qnew(3) = theta;
-    
 end
 
 % qdot function
@@ -117,5 +109,4 @@ function qd = qdot(q, vel)
     theta_dot = W;
     
     qd = [x_dot y_dot theta_dot];
-    
 end
