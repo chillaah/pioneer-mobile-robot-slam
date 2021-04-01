@@ -25,7 +25,7 @@ fprintf("Connected! ID: %d\n", robot.getClientID());
 %   function. Eg 
 %   prac2n12345678(robot) if your student number is n12345678
 
-prac3n10454012(robot);
+prac4n10454012(robot);
 
 % After you are happy with your solution, 
 % submit the file prac2[yourstdnumber].m to BlackBoard

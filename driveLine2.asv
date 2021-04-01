@@ -1,0 +1,25 @@
+function [lWv, rWv] = driveLine2(q, GOAL)
+    Kh = 0.8;
+    Kv = 0.4;
+    Kd = 0.5;
+
+    pos_x = q(1); pos_y = q(2); pos_theta = q(3);
+    a = GOAL(1); b = GOAL(2); c = GOAL(3);
+
+    goal_theta = atan2(a, -b);
+    heading_error = goal_theta - pos_theta;
+    heading = wrpaToPi(heading_error);
+    
+    d = 
+
+    W = Kh * heading;
+    W = min(W, 0.5);
+    W = max(W, -0.5);
+
+    % pos_error = sqrt((goal_x - pos_x)^2 + (goal_y - pos_y)^2);
+    d = (
+    V = Kv * pos_error;
+    V = min(V, 0.3);
+
+    [lWv, rWv] = VtoWheels(V, W);
+end
