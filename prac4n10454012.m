@@ -11,6 +11,11 @@ function prac4n10454012(robot)
     goal_y = 0;
     GOAL = [goal_x, goal_y];
     
+    % line equation
+    % -x -y = 0 in ax+ by + c = 0
+    a = -1; b = -1; c = 0;
+    LINE = [a b c];
+    
     while (true)
         
         % heading towards point
@@ -31,27 +36,22 @@ function prac4n10454012(robot)
             
             % line following
             tic
-            while (toc <= 20)
-                
+            
+            while (toc < 19)
+                    
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
                 
-                % line equation
-                % -x -y = 0 in ax+ by + c = 0
-                a = -1; b = -1; c = 0;
-                L = [a b c];
-                
-                [lWv, rWv] = driveLine2(q, L);
+                [lWv, rWv] = driveLine2(q, LINE);
                 
                 robot.setMotorVel(lWv, rWv);
-
-                pause(0.1)
+                pause(0.05)
+                
             end
-
+            
             robot.setMotorVel(0,0);
             break
         end
-        
     end
     
 	%The function needs to end with the following calls; 

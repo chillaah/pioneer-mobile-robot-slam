@@ -11,6 +11,11 @@ function prac4n10454012(robot)
     goal_y = 0;
     GOAL = [goal_x, goal_y];
     
+    % line equation
+    % -x -y = 0 in ax+ by + c = 0
+    a = -1; b = -1; c = 0;
+    LINE = [a b c];
+    
     while (true)
         
         % heading towards point
@@ -30,24 +35,20 @@ function prac4n10454012(robot)
         if tol < 50/100
             
             % line following
-            tic
-            while (toc <= 20)
-                
+            i = clock;
+            while (true)
+                t = abs(clock - i);
+                if t 
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
                 
-                % line equation
-                % -x -y = 0 in ax+ by + c = 0
-                a = -1; b = -1; c = 0;
-                L = [a b c];
-                
-                [lWv, rWv, d] = driveLine2(q, L);
+                [lWv, rWv] = driveLine2(q, LINE);
                 
                 robot.setMotorVel(lWv, rWv);
-                avgD(:,1) = d;
                 pause(0.1)
+                
             end
-            disp(men(
+
             robot.setMotorVel(0,0);
             break
         end
