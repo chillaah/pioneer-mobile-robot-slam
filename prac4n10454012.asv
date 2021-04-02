@@ -7,7 +7,7 @@ function prac4n10454012(robot)
 	%otherwise, your code will not run during automarking.
 	robot.powerON();
     
-    [pos_x, pos_y] = robot.getTruePose();
+    [arb_x, arb_y] = robot.getTruePose();
     
     % line equation
     % -x -y = 0 in ax+ by + c = 0
@@ -19,26 +19,32 @@ function prac4n10454012(robot)
     m = -a/b;
     intercept = -c/b;
     
-    syms x
-    d_diff = diff(hypot((x - pos_x),(m*x + intercept - pos_y)));
-    dist = solve(d_diff);
+%     syms x
+%     d_diff = diff(hypot((x - arb_x),(m*x + intercept - arb_y)));
+%     dist = solve(d_diff);
+%     
+%     goal_x = dist;
+%     goal_y = -(a/b)*dist - c/b;
+%     GOAL = [goal_x, goal_y];
+
+    
     
     goal_x = dist;
     goal_y = -(a/b)*dist - c/b;
     GOAL = [goal_x, goal_y];
- 
+     
     while (true)
         
         % heading towards point
-        [pos_x, pos_y, pos_theta] = robot.getTruePose();
-        q = [pos_x pos_y pos_theta];
-        
+        [x, y, theta] = robot.getTruePose();
+        q = [x y theta];
+
         [lWv, rWv] = drivePoint(q, GOAL);
 
         robot.setMotorVel(lWv, rWv);
 
-        tol_x = abs(goal_x - pos_x);
-        tol_y = abs(goal_y - pos_y);
+        tol_x = abs(goal_x - x);
+        tol_y = abs(goal_y - y);
 
         tol = hypot(tol_x,tol_y);
         
@@ -53,7 +59,7 @@ function prac4n10454012(robot)
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
                 
-                [lWv, rWv] = driveLine(q, LINE);
+                [lWv, rWv] = driveLine2(q, LINE);
                 
                 robot.setMotorVel(lWv, rWv);
                 pause(0.1)

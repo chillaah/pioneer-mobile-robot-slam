@@ -1,0 +1,8 @@
+function [goal_x, goal_y] = euclidian(q, LINE)
+    x1 = linspace(-10, 10, 100+1); x1(end) = [];
+    y1 = - c/b - a/b * x1;
+    
+    dist = hypot(x1-q(1), y1-q(2));
+    [~, loc] = min(dist);
+    goal_x = x1(loc);
+end
