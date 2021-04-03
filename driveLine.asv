@@ -1,12 +1,11 @@
 function [lWv, rWv] = driveLine(q, LINE)
 
-    Kh = 0.9;
-    Kv = 0.3;
-    Kd = 0.5;
-%     Kh = 1.5;
-%     Kv = 0.5;
-%     Kd = 0.83;
-    
+%     Kh = 0.9;
+%     Kv = 0.3;
+%     Kd = 0.5;
+    Kh = 1.5;
+    Kv = 0.5;
+    K
     pos_x = q(1); pos_y = q(2); pos_theta = q(3);
     a = LINE(1); b = LINE(2); c = LINE(3);
 
