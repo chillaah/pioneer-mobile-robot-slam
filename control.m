@@ -56,7 +56,7 @@ points = [xp; yp; 1 1 1 1];
 
 % Transformation Matrix
 T = [ cosd(theta) -sind(theta) x;
-    sind(theta)  cosd(theta) y;
+      sind(theta)  cosd(theta) y;
     0           0    1 ];
 pp = T*points;
 % clever plot stuff
