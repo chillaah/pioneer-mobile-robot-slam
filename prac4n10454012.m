@@ -15,7 +15,7 @@ function prac4n10454012(robot)
     LINE = [a b c];
     
     % alternativelty
-    % y = -(a/b)*x - c/b in y = mx + c
+    % y = -(a/b)*x - c/b in y = m*x + c
     m = -a/b;
     intercept = -c/b;
     
@@ -44,11 +44,11 @@ function prac4n10454012(robot)
         tol = hypot(tol_x, tol_y);
         
         % while within 40cm of goal
-        if tol < 40/100
+        if tol < 40/100 
             
             % line following
+            safetyFactor = 1; % +/- 1 second
             tic
-            safetyFactor = 1;
 
             while (toc + safetyFactor < 20)
     
