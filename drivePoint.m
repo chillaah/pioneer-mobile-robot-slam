@@ -15,7 +15,7 @@ function [lWv, rWv] = drivePoint(q, GOAL)
     W = min(W, 0.6);
     W = max(W, -0.6);
 
-    pos_error = sqrt((goal_x - pos_x)^2 + (goal_y - pos_y)^2);
+    pos_error = hypot(goal_x - pos_x, goal_y - pos_y);
     V = Kv * pos_error;
     V = min(V, 0.5);
 

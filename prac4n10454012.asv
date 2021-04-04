@@ -19,7 +19,6 @@ function prac4n10454012(robot)
     m = -a/b;
     intercept = -c/b;
     
-    % closest point calculation
     syms x
     d_diff = diff(hypot((x - pos_x),(m*x + intercept - pos_y)));
     dist = solve(d_diff);
@@ -41,9 +40,8 @@ function prac4n10454012(robot)
         tol_x = abs(goal_x - pos_x);
         tol_y = abs(goal_y - pos_y);
 
-        tol = hypot(tol_x, tol_y);
+        tol = hypot(tol_x,tol_y);
         
-        % while within 40cm of goal
         if tol < 40/100
             
             % line following
@@ -61,7 +59,7 @@ function prac4n10454012(robot)
 
             end
             
-            robot.setMotorVel(0, 0);
+            robot.setMotorVel(0,0);
             break
 
         end
@@ -75,25 +73,21 @@ function prac4n10454012(robot)
 end
 
 function [lWv, rWv] = driveLine(q, LINE)
-    
-    % gain constants
-    Kh = 1.0;
+
+    Kh = 0.9;
     Kv = 0.3;
     Kd = 0.5;
     
-    % position and line info
     pos_x = q(1); pos_y = q(2); pos_theta = q(3);
     a = LINE(1); b = LINE(2); c = LINE(3);
-    
-    % heading error to line
+
     goal_theta = atan2(-a, b);
     heading_error = goal_theta - pos_theta;
-    d = (a*pos_x + b*pos_y + c)/hypot(a,b);
     
-    % wrapping between [-180 180]
     heading = wrapToPi(heading_error);
     
-    % controlling and clipping values
+    d = (a*pos_x + b*pos_y + c)/hypot(a,b);
+
     W = (Kh * heading) - (Kd * d);
     W = min(W, 0.5);
     W = max(W, -0.5);
@@ -105,23 +99,18 @@ function [lWv, rWv] = driveLine(q, LINE)
 end
 
 function [lWv, rWv] = drivePoint(q, GOAL)
-    
-    % gain constants
+
     Kh = 0.8;
     Kv = 0.4; 
-    
-    % position and goal info
+
     pos_x = q(1); pos_y = q(2); pos_theta = q(3);
     goal_x = GOAL(1); goal_y = GOAL(2);
-    
-    % heading error to goal
+
     goal_theta = atan2(goal_y - pos_y, goal_x - pos_x);
     heading_error = goal_theta - pos_theta;
-    
-    % wrapping between [-180 180]
+
     heading = wrapToPi(heading_error);
-    
-    % controlling and clipping values
+
     W = Kh * heading;
     W = min(W, 0.6);
     W = max(W, -0.6);
