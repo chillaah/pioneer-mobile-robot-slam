@@ -34,20 +34,17 @@ function prac4n10454012(robot)
         [pos_x, pos_y, pos_theta] = robot.getTruePose();
         q = [pos_x pos_y pos_theta];
         
-        [lWv, rWv] = drivePoint(q, GOAL);
-
-        robot.setMotorVel(lWv, rWv);
-
         tol_x = abs(goal_x - pos_x);
         tol_y = abs(goal_y - pos_y);
 
         tol = hypot(tol_x, tol_y);
         
         % while within 40cm of goal
-        if tol < 40/100 
-            
+        if tol < 40/100
+            %robot.setMotorVel(0,0);
+            %return
             % line following
-            safetyFactor = 1; % +/- 1 second
+            safetyFactor = 0; % +/- 1 second
             tic
 
             while (toc + safetyFactor < 20)
@@ -65,6 +62,11 @@ function prac4n10454012(robot)
             break
 
         end
+        
+        [lWv, rWv] = drivePoint(q, GOAL);
+
+        robot.setMotorVel(lWv, rWv);
+        
     end
     
 	%The function needs to end with the following calls; 
