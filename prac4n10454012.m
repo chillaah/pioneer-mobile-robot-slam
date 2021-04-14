@@ -52,9 +52,19 @@ function prac4n10454012(robot)
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
                 
-                [lWv, rWv] = driveLine(q, LINE);
+                [lWv, rWv] = drivePoint(q, LINE);
                 
                 robot.setMotorVel(lWv, rWv);
+                
+                tol_x = abs(goal_x - state_x);
+                tol_y = abs(goal_y - state_y);
+                
+                tol = sqrt(tol_x^2 + tol_y^2);
+                
+                if tol < 1/100
+                    robot.setMotorVel(0, 0);
+                    break
+                end
 
             end
             

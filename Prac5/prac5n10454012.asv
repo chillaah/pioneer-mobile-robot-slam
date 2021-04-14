@@ -7,17 +7,6 @@ function prac5n10454012(robot)
 	%otherwise, your code will not run during automarking.
 	robot.powerON();
     
-    t = linspace(0, 2*pi, 100);
-    for i = 1:length(t)
-        % x-axis
-        x(i) = 1.8 * cos(t(i)) ./ (sin(t(i)).^2 + 1);
-
-        % y-axis
-        y(i) = 3 * cos(t(i)) .* sin(t(i)) ./ (sin(t(i)).^2 + 1);
-    end
-
-    path = [x', y'];
-    
     p = [    1.8,  0;
           0.8485,  1;
          -0.8485, -1;
@@ -47,33 +36,52 @@ function prac5n10454012(robot)
         [pos_x, pos_y, pos_theta] = robot.getTruePose();
         q = [pos_x pos_y pos_theta];
         
-        [lWv, rWv] = drivePoint(q, GOAL);
-        
-        robot.setMotorVel(lWv, rWv);
-        
         tol_x = abs(goal_x - pos_x);
         tol_y = abs(goal_y - pos_y);
 
         tol = hypot(tol_x, tol_y);
         
         % while within 40cm of goal
-        if tol < 40/100 
-            
-            while (true)
+        if tol < 20/100
+            %robot.setMotorVel(0,0);
+            %return
+            % line following
+            safetyFactor = 0; % +/- 1 second
+            tic
+
+            while (toc + safetyFactor < 20)
+    
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
-
+                
                 vel = control2(q, R, speed, path);
-
+                
                 [lWv, rWv] = VtoWheels(vel(1), vel(2));
-
+                
                 robot.setMotorVel(lWv, rWv);
+                
+%                 tol_x = abs(goal_x - state_x);
+%                 tol_y = abs(goal_y - state_y);
+%                 
+%                 tol = sqrt(tol_x^2 + tol_y^2);
+%                 
+%                 if tol < 1/100
+%                     robot.setMotorVel(0, 0);
+%                     break
+%                 end
+
             end
+            
+            robot.setMotorVel(0, 0);
+            break
+
         end
         
-    end
-    
+        [lWv, rWv] = drivePoint(q, GOAL);
 
+        robot.setMotorVel(lWv, rWv);
+        
+    end
     
     
     
