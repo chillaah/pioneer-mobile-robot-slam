@@ -58,8 +58,8 @@ function vel = control2(q, R, speed, path)
     
     % controlling and clipping values
     W = Kh * heading;
-    W = min(W, 1);
-    W = max(W, -1);
+    W = min(W, 1.2);
+    W = max(W, -1.2);
     
     % pursuit or stop sequence
     if dist(end) < 1/100

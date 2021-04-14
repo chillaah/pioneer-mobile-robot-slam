@@ -38,8 +38,8 @@ function prac5n10454012(robot)
     goal_x = GOAL(1);
     goal_y = GOAL(2);
     
-    R = 0.3;
-    speed = 0.5;
+    R = 0.4;
+    speed = 0.8;
  
     while (true)
         
@@ -57,7 +57,7 @@ function prac5n10454012(robot)
         tol = hypot(tol_x, tol_y);
         
         % while within 40cm of goal
-        if tol < 40/100 
+        if tol < 60/100 
             
             while (true)
                 [x, y, theta] = robot.getTruePose();
