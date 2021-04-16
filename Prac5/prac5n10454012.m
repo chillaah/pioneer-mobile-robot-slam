@@ -27,7 +27,7 @@ function prac5n10454012(robot)
          -0.8485,  1;
           0.8485, -1];
     
-    % goal is to approach a point closer to the first waypoint
+    % goal is to approach a point closer to the first way-point
     % so that robot is stable and doesn't overshoot
     goal_x = p(6,1);
     goal_y = p(6,2);
@@ -52,7 +52,7 @@ function prac5n10454012(robot)
         tol = hypot(tol_x, tol_y);
         
         % while within 80cm of goal
-        if tol < 80/100 
+        if tol < 90/100 
             tic
             
             % pure pursuit
@@ -68,6 +68,8 @@ function prac5n10454012(robot)
                 robot.setMotorVel(lWv, rWv);
             end
             
+            % robot stops 2 way-points after completing the track
+            % but it still completes the task within the given time
             robot.setMotorVel(0,0);
             break
         end
