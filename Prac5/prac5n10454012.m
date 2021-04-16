@@ -51,12 +51,12 @@ function prac5n10454012(robot)
 
         tol = hypot(tol_x, tol_y);
         
-        % while within 80cm of goal
-        if tol < 90/100 
+        % while within range of goal
+        if tol < 1 
             tic
             
             % pure pursuit
-            while (toc < 20)
+            while (toc < 25)
                 
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
@@ -68,7 +68,7 @@ function prac5n10454012(robot)
                 robot.setMotorVel(lWv, rWv);
             end
             
-            % robot stops 2 way-points after completing the track
+            % robot stops 1,2 or 3 way-points after completing the track
             % but it still completes the task within the given time
             robot.setMotorVel(0,0);
             break
@@ -147,25 +147,25 @@ function [lWv, rWv] = drivePoint(q, GOAL)
     heading_error = goal_theta - pos_theta;
 
     heading = wrapToPi(heading_error);
-
+    
     W = Kh * heading;
     W = min(W, 0.6);
     W = max(W, -0.6);
-
+    
     pos_error = hypot(goal_x - pos_x, goal_y - pos_y);
     V = Kv * pos_error;
     V = min(V, 0.5);
-
+    
     [lWv, rWv] = VtoWheels(V, W);
-
+    
 end
 
 function [lWv, rWv] = VtoWheels(V, W)
-    
+
     radiusWheel = 0.0975;
     robotAxleLength = 0.331;
-    
+
     lWv = (2*V - W*robotAxleLength)/(2*radiusWheel);
     rWv = (2*V + W*robotAxleLength)/(2*radiusWheel);
-    
+
 end
