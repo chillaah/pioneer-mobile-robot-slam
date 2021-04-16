@@ -1,69 +1,4 @@
-%% Q1.4 Pure Pursuit
-
-% purepursuit = load('purepursuit.mat');
-% path = purepursuit.robot_traj;
-path = [linspace(0, 1, 50)' linspace(0, 2, 50)';...
-    linspace(1, 2, 50)' linspace(2, 0, 50)';...
-    linspace(2, 1, 50)' linspace(0, -2, 50)';...
-    linspace(1, 0, 50)' linspace(-2, 0, 50)'];
-q = [0.2 0 0];
-R = 0.3;
-speed = 0.5;
-dt = 0.15;
-
-figure(1);
-qplot(q);hold on;
-grid on; box on;
-xlim('auto'); ylim('auto');
-plot(path(:,1), path(:,2));
-for step = 1:150
-    vel = controlll(q, R, speed, path)
-    q = qupdate(q, vel, dt);
-    qplot(q);
-end
-
-
-function qnew = qupdate(q, vel, dt)
-% Inputs:
-% q is the configuration vector (x, y, theta) in units of metres and radians
-% vel is the velocity vector (v, omega)
-% dt is the length of the integration timestep in units of seconds
-% Return:
-% qnew is the new configuration vector vector (x, y, theta) in units of metres and radians at the
-% end of the time interval.
-V = vel(1);
-omega = vel(2);
-theta = q(3);
-xdot = V*cos(theta);
-ydot = V*sin(theta);
-thetadot = omega;
-
-qdot = [xdot, ydot, thetadot];
-qstep = qdot*dt;
-qnew = q+qstep;
-end
-
-function qplot(q)
-% use plot command to draw the triangle as shown above
-% (x,y) position of the robot on the xy-plane
-% theta, heading angle of the robot in radians
-x = q(1);
-y = q(2);
-theta = q(3);
-xp = [0, -0.2, -0.2, 0];
-yp = [0, -0.075, 0.075, 0];
-points = [xp; yp; 1 1 1 1];
-
-% Transformation Matrix
-T = [ cosd(theta) -sind(theta) x;
-      sind(theta)  cosd(theta) y;
-    0           0    1 ];
-pp = T*points;
-% clever plot stuff
-plot(pp(1,:), pp(2,:))
-end
-
-function vel = controlll(q, R, speed, path)
+function vel = control(q, R, speed, path)
 % Inputs:
 %  q is a 1x3 vector giving the current configuration of the robot in units of metres and radians
 %  R is the pure pursuit following distance
@@ -91,7 +26,7 @@ function vel = controlll(q, R, speed, path)
     dist = hypot(diff_x, diff_y);
 
     % finding path
-    [M,num] = min(dist);
+    [~,num] = min(dist);
     dist_row = num + 1;
     condition = dist(dist_row:end, 1) >= R; num = num - 1;
     logic = find(condition);
@@ -119,18 +54,12 @@ function vel = controlll(q, R, speed, path)
     heading_error = goal_theta - pos_theta;
     
     % wrapping between [-180 180]
-    if (heading_error >  pi)
-        heading_error = heading_error - 2*pi;
-    end
-
-    if (heading_error < -pi)
-        heading_error = heading_error + 2*pi; 
-    end
+    heading = wrapToPi(heading_error);
     
     % controlling and clipping values
-    W = Kh * heading_error;
-    W = min(W, 1);
-    W = max(W, -1);
+    W = Kh * heading;
+    W = min(W, 1.2);
+    W = max(W, -1.2);
     
     % pursuit or stop sequence
     if dist(end) < 1/100
@@ -140,6 +69,5 @@ function vel = controlll(q, R, speed, path)
     end
     
 end
-
 
 

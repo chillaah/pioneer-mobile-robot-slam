@@ -22,6 +22,7 @@ function prac4n10454012(robot)
     % closest point calculation
     syms x
     d_diff = diff(hypot((x - pos_x),(m*x + intercept - pos_y)));
+    
     dist = solve(d_diff);
     
     goal_x = dist;
@@ -34,17 +35,24 @@ function prac4n10454012(robot)
         [pos_x, pos_y, pos_theta] = robot.getTruePose();
         q = [pos_x pos_y pos_theta];
         
+        [lWv, rWv] = drivePoint(q, GOAL);
+
+        robot.setMotorVel(lWv, rWv);
+
         tol_x = abs(goal_x - pos_x);
         tol_y = abs(goal_y - pos_y);
 
-        tol = hypot(tol_x, tol_y);
-        
+        tol = hypot(tol_x, tol_y)
+        dif_test = [pos_x, pos_y, 1]*[a, b, c]' / sqrt(a^2 + b^2)
+        tol;
         % while within 40cm of goal
         if tol < 40/100
-            %robot.setMotorVel(0,0);
+            tol
+            return
+            %robot.setMotorVel(0, 0);
             %return
             % line following
-            safetyFactor = 0; % +/- 1 second
+            safetyFactor = 1; % +/- 1 second
             tic
 
             while (toc + safetyFactor < 20)
@@ -52,19 +60,9 @@ function prac4n10454012(robot)
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
                 
-                [lWv, rWv] = drivePoint(q, LINE);
+                [lWv, rWv] = driveLine(q, LINE);
                 
                 robot.setMotorVel(lWv, rWv);
-                
-                tol_x = abs(goal_x - state_x);
-                tol_y = abs(goal_y - state_y);
-                
-                tol = sqrt(tol_x^2 + tol_y^2);
-                
-                if tol < 1/100
-                    robot.setMotorVel(0, 0);
-                    break
-                end
 
             end
             
@@ -72,11 +70,6 @@ function prac4n10454012(robot)
             break
 
         end
-        
-        [lWv, rWv] = drivePoint(q, GOAL);
-
-        robot.setMotorVel(lWv, rWv);
-        
     end
     
 	%The function needs to end with the following calls; 

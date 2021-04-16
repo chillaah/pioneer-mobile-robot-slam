@@ -7,15 +7,17 @@ function prac5n10454012(robot)
 	%otherwise, your code will not run during automarking.
 	robot.powerON();
     
-    t = linspace(0, 2*pi, 100);
+    t = linspace(0, 2*pi, 1000);
+    x = zeros(size(t));
+    y = zeros(size(t));
     for i = 1:length(t)
-        % x-axis
+        
+        % parametric equations
         x(i) = 1.8 * cos(t(i)) ./ (sin(t(i)).^2 + 1);
-
-        % y-axis
         y(i) = 3 * cos(t(i)) .* sin(t(i)) ./ (sin(t(i)).^2 + 1);
     end
-
+    
+    % path and way-points
     path = [x', y'];
     
     p = [    1.8,  0;
@@ -25,18 +27,11 @@ function prac5n10454012(robot)
          -0.8485,  1;
           0.8485, -1];
     
-    [pos_x, pos_y] = robot.getTruePose();
-    pos = double([pos_x, pos_y]);
-    pos = repmat(pos,[6,1]);
-    diff = p - pos;
-    d = zeros(6,1);
-    for i = 1:length(p)
-        d(i,:) = hypot(diff(i,1), diff(i,2));
-    end
-    [~, index] = min(d);
-    GOAL = p(index,:);
-    goal_x = GOAL(1);
-    goal_y = GOAL(2);
+    % goal is to approach a point closer to the first waypoint
+    % so that robot is stable and doesn't overshoot
+    goal_x = p(6,1);
+    goal_y = p(6,2);
+    GOAL = [goal_x goal_y];
     
     R = 0.4;
     speed = 0.8;
@@ -56,210 +51,28 @@ function prac5n10454012(robot)
 
         tol = hypot(tol_x, tol_y);
         
-        % while within 40cm of goal
-        if tol < 60/100 
+        % while within 80cm of goal
+        if tol < 80/100 
+            tic
             
-            while (true)
+            % pure pursuit
+            while (toc < 20)
+                
                 [x, y, theta] = robot.getTruePose();
                 q = [x y theta];
 
-                vel = control2(q, R, speed, path);
+                vel = control(q, R, speed, path);
 
                 [lWv, rWv] = VtoWheels(vel(1), vel(2));
 
                 robot.setMotorVel(lWv, rWv);
             end
+            
+            robot.setMotorVel(0,0);
+            break
         end
         
     end
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-%     p = [    1.8,  0;
-%           0.8485,  1;
-%          -0.8485, -1;
-%             -1.8,  0;
-%          -0.8485,  1;
-%           0.8485, -1];
-%     
-%     [pos_x, pos_y] = robot.getTruePose();
-%     pos = double([pos_x, pos_y]);
-%     pos = repmat(pos,[6,1]);
-%     diff = p - pos;
-%     d = zeros(6,1);
-%     for i = 1:length(p)
-%         d(i,:) = hypot(diff(i,1), diff(i,2));
-%     end
-%     [~, index] = min(d);
-%     GOAL = p(index,:);
-%     goal_x = GOAL(1);
-%     goal_y = GOAL(2);
-%     
-%     while (true)
-%         % heading towards point
-%         [pos_x, pos_y, pos_theta] = robot.getTruePose();
-%         q = [pos_x pos_y pos_theta];
-%         
-%         [lWv, rWv] = drivePoint(q, GOAL);
-%         
-%         robot.setMotorVel(lWv, rWv);
-%         pause(0.1)
-%         
-%         tol_x = abs(goal_x - pos_x);
-%         tol_y = abs(goal_y - pos_y);
-%         
-%         tol = sqrt(tol_x^2 + tol_y^2);
-%         
-%         if tol < 1/100
-%             robot.setMotorVel(0, 0);
-%             break
-%         end
-%     end
-        
-    
-%     % line equation
-%     % -x -y = 0 in ax+ by + c = 0
-%     a = 1.8; b = 3; c = 0;
-%     LINE = [a b c];
-%     
-%     % closest point calculation
-%     syms x
-%     d_diff = diff(hypot((( cos(x)/(1+sin(x)^2)) - pos_x),(( sin(x)*cos(x)/(1+sin(x)^2))- pos_y)));
-%     dist = solve(d_diff);
-%     
-%     goal_x = dist;
-%     goal_y = -(a/b)*dist - c/b;
-%     GOAL = [goal_x, goal_y];
-%     
-%     while (true)
-%         
-%         % heading towards point
-%         [pos_x, pos_y, pos_theta] = robot.getTruePose();
-%         q = [pos_x pos_y pos_theta];
-%         
-%         [lWv, rWv] = driveLine(q, LINE);
-%         
-%         robot.setMotorVel(lWv, rWv);
-%         
-%     end
-    
-% %     % time vector
-% t = linspace(0, 2*pi, 100);
-% 
-% % when t = 0,2*pi -> x(t) = a*srt(2)
-% % a = +/-0.5/sqrt(2)
-% % a = 0.5/sqrt(2);
-% 
-% for i = 1:length(t)
-%     % x-axis
-%     x(i) = 1.8 * cos(t(i)) ./ (sin(t(i)).^2 + 1);
-%     
-%     % y-axis
-%     y(i) = 3 * cos(t(i)) .* sin(t(i)) ./ (sin(t(i)).^2 + 1);
-% end
-% 
-% path = [x', y'];
-% 
-%     pos = double([pos_x, pos_y]);
-%     pos = repmat(pos,[length(t),1]);
-%     diff = path - pos;
-%     d = zeros(length(t),1);
-%     for i = 1:length(t)
-%         d(i,:) = hypot(diff(i,1), diff(i,2));
-%     end
-%     [~, index] = min(d);
-%     GOAL = path(index,:);
-%     goal_x = GOAL(1);
-%     goal_y = GOAL(2);
-% 
-%     while (true)
-%         
-%         % heading towards point
-%         [pos_x, pos_y, pos_theta] = robot.getTruePose();
-%         q = [pos_x pos_y pos_theta];
-%         
-%         [lWv, rWv] = drivePoint(q, GOAL);
-%         
-%         robot.setMotorVel(lWv, rWv);
-%         
-%         pause(0.1)
-% 
-%         tol_x = abs(goal_x - pos_x);
-%         tol_y = abs(goal_y - pos_y);
-% 
-%         tol = sqrt(tol_x^2 + tol_y^2);
-% 
-%         if tol < 40/100
-%             [pos_x, pos_y] = robot.getTruePose();
-%             pos = double([pos_x, pos_y]);
-%             pos = repmat(pos,[length(t),1]);
-%             diff = path - pos;
-%             d = zeros(length(t),1);
-%             for i = 1:length(t)
-%                 d(i,:) = hypot(diff(i,1), diff(i,2));
-%             end
-%             [~, index] = min(d);
-%             GOAL = path(index,:);
-%             goal_x = GOAL(1);
-%             goal_y = GOAL(2);
-%          end
-% 
-%      end
-
-% z = (t*sqrt((-81 - 50*t.^2 + 9*sqrt(81 + 200*t.^2))/t.^2))/(3*sqrt(2));
-% 
-% % A = a;
-% 
-% % plot
-% figure();
-% hold on
-% plot(x, y, 'r');
-% plot(t,z,'k');
-% box on
-% grid on
-% ylim('auto');
-% 
-%     
-%     plot(pos_x,pos_y,'bo');
 
 	%The function needs to end with the following calls; 
 	%otherwise, your code will not run during automarking.
@@ -269,3 +82,88 @@ function prac5n10454012(robot)
 end    
 
 
+function vel = control(q, R, speed, path)
+
+    Kv = 1;
+    Kh = 5;
+    
+    pos_x = q(1);
+    pos_y = q(2);
+    pos_theta = q(3);
+    pos = [pos_x pos_y];
+
+    diff = path - pos;
+    diff_x = diff(:,1);
+    diff_y = diff(:,2);
+    dist = hypot(diff_x, diff_y);
+
+    [~,num] = min(dist);
+    dist_row = num + 1;
+    condition = dist(dist_row:end, 1) >= R; num = num - 1;
+    logic = find(condition);
+    count = length(logic);
+    
+    while (count == 0)
+        locs = path(end, :);
+        break
+    end
+    
+    while (count ~= 0)
+        path_x = logic(1) + num;
+        locs = path(path_x, :);
+        break
+    end
+
+    V = Kv * speed;
+    
+    goal_x = locs(1); goal_y = locs(2);
+    goal_theta = atan2(goal_y - pos_y, goal_x - pos_x);
+    heading_error = goal_theta - pos_theta;
+    heading = wrapToPi(heading_error);
+    
+    W = Kh * heading;
+    W = min(W, 1.2);
+    W = max(W, -1.2);
+    
+    if dist(end) < 1/100
+        vel = [0 0];
+    else
+        vel = [V W];
+    end
+    
+end
+
+function [lWv, rWv] = drivePoint(q, GOAL)
+
+    Kh = 0.8;
+    Kv = 0.4; 
+
+    pos_x = q(1); pos_y = q(2); pos_theta = q(3);
+    goal_x = GOAL(1); goal_y = GOAL(2);
+
+    goal_theta = atan2(goal_y - pos_y, goal_x - pos_x);
+    heading_error = goal_theta - pos_theta;
+
+    heading = wrapToPi(heading_error);
+
+    W = Kh * heading;
+    W = min(W, 0.6);
+    W = max(W, -0.6);
+
+    pos_error = hypot(goal_x - pos_x, goal_y - pos_y);
+    V = Kv * pos_error;
+    V = min(V, 0.5);
+
+    [lWv, rWv] = VtoWheels(V, W);
+
+end
+
+function [lWv, rWv] = VtoWheels(V, W)
+    
+    radiusWheel = 0.0975;
+    robotAxleLength = 0.331;
+    
+    lWv = (2*V - W*robotAxleLength)/(2*radiusWheel);
+    rWv = (2*V + W*robotAxleLength)/(2*radiusWheel);
+    
+end
