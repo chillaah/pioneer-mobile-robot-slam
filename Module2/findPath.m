@@ -39,7 +39,7 @@ function path = findPath(map, start, goal)
         % updating to next coordinates
         xnew = lastx + changex;
         ynew = lasty + changey;
-        path(i,:) = [xnew, ynew];
+        path(i,:) = [xnew, ynew]
         
         % if goal has been reached
         if (path(end,1) == goalx && path(end,2) == goaly)

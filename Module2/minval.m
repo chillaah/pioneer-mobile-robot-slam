@@ -5,9 +5,11 @@ function next = minval(M)
    [posy,posx] = find(M == minNum);
    
    % center coordinates
-   mid = M(ceil(numel(M)/2));
+   mid = M(2,2);
    [ceny,cenx] = find(M == mid);
    
    % coordinate difference of set [-1 0 1]
    next = [posx-cenx, posy-ceny];
+   %next = next(1,:);
+
 end

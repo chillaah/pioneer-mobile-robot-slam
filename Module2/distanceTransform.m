@@ -20,9 +20,12 @@ function dtransform = distanceTransform(map, goal)
     dtransform(goaly,goalx) = 0;
     
     % compare matrix
-    mat = [sqrt(2) 1 sqrt(2);
-                 1 0 1      ;
-           sqrt(2) 1 sqrt(2)];
+%     mat = [sqrt(2) 1 sqrt(2);
+%                  1 0 1      ;
+%            sqrt(2) 1 sqrt(2)];
+    manhattan = [inf 1 inf;
+                   1 0 1  ;
+                inf 1 inf];
     
     % looping to assign distance values
     cellsTotal = sum((dtransform == inf),'all')+1;
@@ -43,7 +46,7 @@ function dtransform = distanceTransform(map, goal)
                 
                 M = window(dtransform,i,j);
                 
-                C = M + mat;
+                C = M + manhattan;
                 
                 dtransform(j,i) = min(C,[],'all');
             end
