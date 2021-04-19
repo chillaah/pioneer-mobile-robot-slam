@@ -2,6 +2,8 @@
 
 %----- YOUR CODE GOES BELOW HERE -----
 
+A = rand(10,12);
+
 function M = window(A, x, y) 
 % Input:
 %  A an arbitrary sized real matrix, at least 3x3.
@@ -12,18 +14,26 @@ function M = window(A, x, y)
 %
 % Should the window extend beyond the edges of the matrix the function must
 % return an empty matrix [].
-    if x == size(A,2)
-    M = [A(y-1,x-1) A(y-1,x) A(y-1,x+1)
-           A(y,x-1)   A(y,x)   A(y,x+1)
-         A(y+1,x-1) A(y+1,x) A(y+1,x+1)];
+
+     if x >= size(A,2) || y >= size(A,1) || x <= 1 || y <= 1
+         M = [];
+     else
+        M = [ A(y-1,x-1) A(y-1,x) A(y-1,x+1)
+                A(y,x-1)   A(y,x)   A(y,x+1)
+              A(y+1,x-1) A(y+1,x) A(y+1,x+1)];
+     end
      
-    for i = 1:size(M,1)
-        for j = 1:size(M,2)
-            if isempty(M(i,j))
-                M(i,j) = [];
-            end
-        end
-    end
+% M = size(3,3);
+% for i = 0:2
+%     for j = 0:2
+%         if isempty(A(y+i,x+j))
+%             M(i+1,j+1) = [];
+%         else
+%             M(i+1,j+1) = A(y+i,x+j);
+%         end
+%     end
+% end
+
 end
 
 function B = minwin(A) 
@@ -32,7 +42,18 @@ function B = minwin(A)
 % of a 3x3 window of A centered at the corresponding element.  Elements of B 
 % that correspond to a window which "falls off the edge" of the matrix A should be set to a value of NaN.
 
-    B = ;
+B = zeros(size(A));
+
+    for x = 1:size(A,1)
+        for y = 1:size(A,2)
+            M = window(A,y,x);
+            if isempty(M)
+                B(x,y) = NaN;
+            else
+                B(x,y) = min(M,[],'all');
+            end
+        end
+    end
 end
 
 function next = minval(M)
@@ -41,6 +62,7 @@ function next = minval(M)
 % Return:
 %  next is a 1x2 matrix with elements [x, y] which are the horizontal and vertical coordinates relative to the centre
 %       element, of the smallest element in the matrix.
-
-    next = ;
+   [~,pos] = min(M);
+   
+   next = ;
 end
