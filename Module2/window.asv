@@ -1,0 +1,14 @@
+function M = window(A, x, y)
+
+        A2 = [NaN(1,size(A,2));
+                    A
+              NaN(1,size(A,2))];
+          
+        A3 = [NaN(1,size(A2,1))' A2 NaN(1,size(A2,1))'];
+        x = x+1; y = y+ 1;
+        M = [ A3(y-1,x-1) A3(y-1,x) A3(y-1,x+1)
+                A3(y,x-1)   A3(y,x)   A3(y,x+1)
+              A3(y+1,x-1) A3(y+1,x) A3(y+1,x+1)];
+
+
+end
