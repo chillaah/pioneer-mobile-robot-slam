@@ -11,7 +11,7 @@ function next = minval(M)
    % coordinate difference of set [-1 0 1]
    next = [posx-cenx, posy-ceny];
    
-   % if there are many, since distances are the same, pick 1 of them
-   next = next(1,:);
+   % if there are many, since distances are the same, pick the 2nd one
+   if size(next,1) >= 2; next = next(2,:); end
 
 end

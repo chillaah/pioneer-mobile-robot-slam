@@ -10,13 +10,13 @@ function path = findPath(map, start, goal)
     
     % compute the best path
     
-    startx = start(1);
-    starty = start(2);
-    startDT = dtransform(starty,startx);
-    if (isnan(startDT) || isinf(startDT))
-        path = [];
-        return;
-    end
+%     startx = start(1);
+%     starty = start(2);
+%     startDT = dtransform(starty,startx);
+%     if (isnan(startDT) || isinf(startDT))
+%         path = [];
+%         return;
+%     end
     goalx = goal(1); goaly = goal(2);
     
     % Begin at the start

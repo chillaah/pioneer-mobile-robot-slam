@@ -20,9 +20,9 @@ function dtransform = distanceTransform(map, goal)
     dtransform(goaly,goalx) = 0;
     
     % compare matrix
-    manhattan = [Inf, 1, Inf;
-                  1, 0, 1 ;
-                 Inf, 1, Inf];
+    manhattan = [inf 1 inf;
+                  1  0  1 ;
+                 inf 1 inf];
     
     % looping to assign distance values
     cellsTotal = sum((dtransform == inf),'all') + 1;
