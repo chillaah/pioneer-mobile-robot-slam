@@ -7,6 +7,7 @@
 %  PiBot                constructor
 %  char                 info in human readable form
 %  display              display information about selfect
+%  timeout              set network timeout
 %
 % Robot control:
 %  setVelocity          set motor velocity
@@ -35,14 +36,16 @@
 
 % (c) 2019 Peter Corke
 
-
-classdef PiBot < handle
     
+classdef PiBot < handle
+
     
     properties(Access = public)
         robot
         localizer
         groupNum
+        webopt       % web options, used for every call
+        json
     end
     
     methods
@@ -64,42 +67,53 @@ classdef PiBot < handle
             %
             % See also PiBot.setVelocity, PiBot.getImage.
             
-            assert(ischar(robotURL), 'Robot robot must be a character array')
+            assert(ischar(robotURL) || ischar(robotURL), 'First argugment (URL) must be a string or character array')
             v = regexp(robotURL, '^\d+\.\d+\.\d+\.\d+$');
             assert(~isempty(v) && v==1, 'IP address is invalid, can only can contain digits and dots')
             self.robot = "http://" + string(robotURL) + ":8080";
-            
+
             self.localizer = [];
-            switch nargin
-                case 3
-                    assert(ischar(localizerURL), 'Localizer robot must be a character array')
-                    self.localizer = "http://" + string(localizerURL) + ":8080";
-                    self.groupNum = groupNum;
-                case 1
-                otherwise
-                    error('must be 1 or 3 arguments')
+            self.timeout(5);
+            if nargin == 3
+                assert(ischar(localizerURL), 'Localizer robot must be a character array')
+                self.localizer = "http://" + string(localizerURL) + ":8080";
+                self.groupNum = groupNum;
+            elseif nargin ~= 1
+                error('must be 1 or 3 arguments')
             end
         end
-        
+
         function s = char(self)
-            % Link.cchar Convert to string
-            %
-            % s = PB.char() is a string showing robot parameters in a compact single line format.
-            %
-            %   See also PiBot.display.
-            
+        % PiBot.char Convert to string
+        %
+        % s = PB.char() is a string showing robot parameters in a compact single line format.
+        %  
+        %   See also PiBot.display.
+  
             s = sprintf('PenguinPi robot at %s', self.robot);
             if ~isempty(self.localizer)
-                s = strcat(s, ', with localizer at %s', self.localizer);
+                s = strcat(s, sprintf(', with localizer at %s', self.localizer));
             end
+        end
+
+        function timeout(self, t)
+        % PiBot.timeout Set communications timeout
+        %
+        % PB.timeout(T) sets the timeout in units of seconds.  If the robot or
+        % localizer fails to respond within this time, the function will return.
+        % Functions that return a scalar will return NaN, other functions will
+        % return [].
+        %  
+        %   See also PiBot.display.
+            self.webopt = weboptions('Timeout', t);
         end
         
         function display(self)
-            % PibBot.display Display parameters
-            %
-            %  PB.display() displays the robot parameters in compact single line format.
-            %
-            % See also PiBot.char.
+        % PibBot.display Display parameters
+        %  
+        %  PB.display() displays the robot parameters in compact single line format.  
+        %
+        % See also PiBot.char.
             disp( char(self));
         end
         
@@ -118,7 +132,7 @@ classdef PiBot < handle
             %
             % PB.setVelocity(VEL, T, ACC) as above but the speed ramps up and down at
             % the end of the motion over ACC seconds.  The constant velocity part of
-            % the motion lasts for T-ACC seconds, the total motion time is T+2*ACC
+            % the motion lasts for T-2*ACC seconds, the total motion time is T+2*ACC
             % seconds.  This profile moves the same distance as a rectangular speed
             % profile over T seconds.
             %
@@ -142,7 +156,7 @@ classdef PiBot < handle
                 vel = round(vel);  % convert to int
                 vel = min(max(vel, -100), 100);  % clip
                 
-                json = webread(self.robot+"/robot/set/velocity", "value", vel);
+                json = self.webread("/robot/set/velocity", "value", vel);
                 
                 
             elseif length(varargin{1}) == 2
@@ -154,7 +168,7 @@ classdef PiBot < handle
                 vel = min(max(vel, -100), 100);  % clip
                 
                 if length(varargin) == 1
-                    json = webread(self.robot+"/robot/set/velocity", "value", vel);
+                    json = self.webread("/robot/set/velocity", "value", vel);
                 elseif length(varargin) >= 2
                     duration = varargin{2};
                     assert(duration > 0, 'duration must be positive');
@@ -164,15 +178,21 @@ classdef PiBot < handle
                     if length(varargin) >= 3
                         accel = varargin{3};
                         assert(accel < duration/2, 'accel must be < accel/2');
-                        json = webread(self.robot+"/robot/set/velocity", "value", vel, "time", duration, "acceleration", accel);
+                        json = self.webread("/robot/set/velocity", "value", vel, "time", duration, "acceleration", accel);
                     else
-                        json = webread(self.robot+"/robot/set/velocity", "value", vel, "time", duration);
+                        json = self.webread("/robot/set/velocity", "value", vel, "time", duration);
                     end
                 end
             end
+
+            self.json = json;
             
             if nargout > 0
-                stat = jsondecode(json);
+                if ~isempty(json)
+                    stat = jsondecode(json);
+                else
+                    stat = [];
+                end
             end
         end
         
@@ -181,14 +201,18 @@ classdef PiBot < handle
             %
             % PB.stop() stops all motors.
             %
-            % STAT = PB.stop() as above but returns a structure that contains the encoder
+            % STAT = PB.stop() as above but returns a structure that contains the encoder 
             % count and dead-reckoned pose at the end of the motion.
             %
             % See also PiBot.setVelocity.
             
-            json = webread(self.robot+"/robot/stop");
+            json = self.webread("/robot/stop");
             if nargout > 0
-                stat = jsondecode(json);
+                if ~isempty(json)
+                    stat = jsondecode(json);
+                else
+                    stat = [];
+                end
             end
         end
         
@@ -198,16 +222,16 @@ classdef PiBot < handle
             % PB.resetEncoder() stop all motors and reset encoders.
             %
             % See also PiBot.stop, PiBot.setMotorSpeed.
-            webread(self.robot+"/robot/hw/reset");
+            self.webread("/robot/hw/reset");
         end
-        
+
         function resetPose(self)
             %PiBot.resetPose  Reset the onboard pose estimator
             %
             % PB.resetPose() will zero the estimated state of the onboard
             % pose estimator, x=y=theta=0
             %
-            webread(self.robot+"/robot/pose/reset");
+            self.webread("/robot/pose/reset");
         end
         
         function v = getVoltage(self)
@@ -216,7 +240,12 @@ classdef PiBot < handle
             % PB.getVoltage() is the battery voltage in volts.
             %
             % See also PiBot.getCurrent.
-            v = str2num( webread(self.robot+"/battery/get/voltage") ) /1000.0;
+            s = self.webread("/battery/get/voltage");
+            if ~isempty(s)
+                v = str2num(s) /1000.0;
+            else
+                v = NaN;
+            end
         end
         
         function c = getCurrent(self)
@@ -225,7 +254,12 @@ classdef PiBot < handle
             % PB.getCurrent() is the battery voltage in amps.
             %
             % See also PiBot.getCurrent.
-            c = str2num( webread(self.robot+"/battery/get/current") ) /1000.0;
+            s = self.webread("/battery/get/current");
+            if ~isempty(s)
+                c = str2num(s) /1000.0;
+            else
+                c = NaN;
+            end
         end
         
         function setLED(self, i, s)
@@ -241,7 +275,7 @@ classdef PiBot < handle
             assert(i>=2 && i<=4, 'invalid LED');
             assert(s==0 || s==1, 'invalid state')
             
-            webread(self.robot+"/led/set/state", "id", i, "value", s);
+            self.webread("/led/set/state", "id", i, "value", s);
         end
         
         function pulseLED(self, i, duration)
@@ -258,18 +292,18 @@ classdef PiBot < handle
             assert(i>=2 && i<=4, 'invalid LED');
             assert(duration>0 && duration<=0.255, 'invalid duration')
             
-            webread(self.robot+"/led/set/count", "id", i, "value", duration*1000);
+            self.webread("/led/set/count", "id", i, "value", duration*1000);
         end
         
         function d = getDIP(self)
             %PiBot.getDIP  Get value of DIP switch
             %
-            % PB.getDIP() is the value of the DIP switch.
+            % PB.getDIP() is the value of the DIP switch. 
             %
             % Notes::
             % - SW4 is the LSB
             % - SW3 and SW4 are used by the onboard software
-            d = webread(self.robot+"/hat/dip/get");
+            d = self.webread("/hat/dip/get");
         end
         
         function b = getButton(self)
@@ -277,8 +311,8 @@ classdef PiBot < handle
             %
             % PB.getButton() is the number of times the rightmost button has been
             % pushed since the last call to this function.
-            
-            b = webread(self.robot+"/hat/button/get");
+
+            b = self.webread("/hat/button/get");
         end
         
         
@@ -290,27 +324,27 @@ classdef PiBot < handle
             % LSB is the bottom right LED and number increasing upwards and to the
             % left.
             
-            webread(self.robot+"/hat/ledarray/set", "value", v);
+            self.webread("/hat/ledarray/set", "value", v);
         end
-        
+
         function printfOLED(self, varargin)
             %PiBot.printfOLED write formatted text to OLED display
             %
-            % PB.printfOLED(fmt, ...) has printf() like semantics and writes a
-            % string to the user text screen of the OLED display.  The display is
-            % only 21x4 characters.  New strings are written at the bottom and
-            % scroll up.  Long lines are wrapped.  Line feed (\n) starts a new
+            % PB.printfOLED(fmt, ...) has printf() like semantics and writes a 
+            % string to the user text screen of the OLED display.  The display is 
+            % only 21x4 characters.  New strings are written at the bottom and 
+            % scroll up.  Long lines are wrapped.  Line feed (\n) starts a new 
             % line and form feed (\f) clears the screen.  The display is automatically
             % to the USER TEXT screen.
             %
             % eg.
             %       pb.printfOLED('hello world!\n');
             %       pb.printfOLED('the answer is %d\n', 42)
-            
-            webread(self.robot+"/hat/screen/print", "value", sprintf(varargin{:}));
-        end
         
-        function setScreen(self, S)
+            self.webread("/hat/screen/print", "value", sprintf(varargin{:}));
+        end
+
+        function setScreen(self, screen)
             %PiBot.setScreen select screen on OLED
             %
             % PB.setScreen(i) sets the OLED display to show information screen S. The OLED
@@ -326,7 +360,7 @@ classdef PiBot < handle
             %  6   control loop timing data
             %  7   error messages
             %  8   last datagram received
-            webread(self.robot+"/hat/screen/set", "value", screen);
+            self.webread("/hat/screen/set", "value", screen);
         end
         
         function img = getImage(self)
@@ -336,7 +370,7 @@ classdef PiBot < handle
             % robot.
             %
             % See also PiBot.getCurrent.
-            img = webread(self.robot+"/camera/get");
+            img = self.webread("/camera/get");
         end
         
         function im = getLocalizerImage(self)
@@ -349,14 +383,14 @@ classdef PiBot < handle
             % - Requires that the object was initialized for the localizer
             % - The image is greyscale
             %
-            
+
             if ~isempty(self.localizer)
-                im = webread(self.localizer+"/camera/get", "group", self.groupNum);
+                im = self.webread_localizer("/camera/get", "group", self.groupNum);
             else
                 im = [];
             end
         end
-        
+
         function p = getLocalizerPose(self)
             %PiBot.getLocalizerPose get robot pose from localizer
             %
@@ -367,28 +401,51 @@ classdef PiBot < handle
             % - Requires that the object was initialized for the localizer
             % - Requires that the robot is on the arena under the localizer
             %
-            
+
+            p = [];
+
             if ~isempty(self.localizer)
-                p = jsondecode( webread(self.localizer+"/pose/get", "group", self.groupNum) );
-            else
-                p = [];
+                s = self.webread_localizer("/pose/get", "group", self.groupNum);
+                if ~isempty(s)
+                    p = jsondecode(s);
+                end
             end
         end
         
-        function stat = getEncoder(self)
-            json = webread(self.robot+"/robot/set/velocity");
-            structs = jsondecode(json);
-            stat = [structs.encoder.left structs.encoder.right];
-        end 
+                function s = webread(self, url, varargin)
+            try
+                s = webread(self.robot+url, varargin{:}, self.webopt);
+            catch ME
+                if endsWith(ME.identifier, 'Timeout')
+                    s = [];
+                else
+                    rethrow(ME)
+                end
+            end
+        end
+        
+        function s = webread_localizer(self, url, varargin)
+            try
+                s = webread(self.localizer+url, varargin{:}, self.webopt);
+            catch ME
+                if endsWith(ME.identifier, 'Timeout')
+                    s = [];
+                else
+                    rethrow(ME)
+                end
+            end
+        end
+        
     end
 end
-function print_json(j1, j2)
-state1 = jsondecode(j1);
-state2 = jsondecode(j2);
-fprintf('Initial\n');
-state1.encoder
-state1.pose
-fprintf('Final\n');
-state2.encoder
-state2.pose
-end
+
+    function print_json(j1, j2)
+        state1 = jsondecode(j1);
+        state2 = jsondecode(j2);
+        fprintf('Initial\n');
+        state1.encoder
+        state1.pose
+        fprintf('Final\n');
+        state2.encoder
+        state2.pose
+    end
