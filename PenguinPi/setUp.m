@@ -1,5 +1,5 @@
 %% Enter IP address shown on robot
-IP = '172.19.232.172';
+IP = '192.168.50.5';
 
 %Initialise robot
 pb = PiBot(IP);
