@@ -39,11 +39,13 @@ function dtransform = distanceTransform(map, goal)
                 
                 if isnan(dtransform(j,i))
                     continue;
-                else
-                    M = window(dtransform,i,j);
-                
-                    dtransform(j,i) = min(M + manhattan,[],'all');
                 end
+                    M = window(dtransform,i,j);
+                    
+                    C = M + manhattan;
+                
+                    dtransform(j,i) = min(C,[],'all');
+                %end
             end
         end
     end
