@@ -3,7 +3,7 @@ function M = window(A, x, y)
     % top and bottom NaN row boundry
     A = [NaN(1,size(A,2));
                 A
-          NaN(1,size(A,2))];
+         NaN(1,size(A,2))];
     
     % right and left NaN column boundry
     A = [NaN(1,size(A,1))' A NaN(1,size(A,1))'];

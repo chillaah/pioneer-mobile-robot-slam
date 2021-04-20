@@ -10,6 +10,8 @@ function next = minval(M)
    
    % coordinate difference of set [-1 0 1]
    next = [posx-cenx, posy-ceny];
-   %next = next(1,:);
+   
+   % if there are many, since distances are the same, pick 1 of them
+   next = next(1,:);
 
 end

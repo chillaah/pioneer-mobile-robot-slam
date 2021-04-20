@@ -3,7 +3,7 @@ function dtransform = distanceTransform(map, goal)
     % initializing
     mapx = size(map,1); mapy = size(map,2);
     goalx = goal(1); goaly = goal(2);
-    %dtransform = size(map);
+    dtransform = zeros(mapx,mapy);
     
     % assigning inf and NaN values according to map
     for n = 1:mapx
@@ -20,15 +20,12 @@ function dtransform = distanceTransform(map, goal)
     dtransform(goaly,goalx) = 0;
     
     % compare matrix
-%     mat = [sqrt(2) 1 sqrt(2);
-%                  1 0 1      ;
-%            sqrt(2) 1 sqrt(2)];
     manhattan = [inf 1 inf;
-                   1 0 1  ;
-                inf 1 inf];
+                  1  0  1 ;
+                 inf 1 inf];
     
     % looping to assign distance values
-    cellsTotal = sum((dtransform == inf),'all')+1;
+    cellsTotal = sum((dtransform == inf),'all') + 1;
     while (true)
         
         cellsNotFilled = sum((dtransform == inf),'all');
@@ -42,13 +39,11 @@ function dtransform = distanceTransform(map, goal)
                 
                 if isnan(dtransform(j,i))
                     continue;
+                else
+                    M = window(dtransform,i,j);
+                
+                    dtransform(j,i) = min(M + manhattan,[],'all');
                 end
-                
-                M = window(dtransform,i,j);
-                
-                C = M + manhattan;
-                
-                dtransform(j,i) = min(C,[],'all');
             end
         end
     end
