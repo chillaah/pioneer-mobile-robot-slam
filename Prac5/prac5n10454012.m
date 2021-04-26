@@ -15,6 +15,7 @@ function prac5n10454012(robot)
         % parametric equations
         x(i) = 1.8 * cos(t(i)) ./ (sin(t(i)).^2 + 1);
         y(i) = 3 * cos(t(i)) .* sin(t(i)) ./ (sin(t(i)).^2 + 1);
+        
     end
     
     % path and way-points
@@ -82,7 +83,6 @@ function prac5n10454012(robot)
 	robot.powerOFF();
 	disp("**********END************");
 end    
-
 
 function vel = control(q, R, speed, path)
 

@@ -7,13 +7,14 @@ function in = qcontains(list, nodeid)
     %
     % Output:
     %   in (logical)
+    
     if isempty(list)
-        in = 0;
+        in = false;
     else
         if isempty(find(list == nodeid))
-            in = 0;
+            in = false;
         else
-            in = 1;
+            in = true;
         end
     end
 end

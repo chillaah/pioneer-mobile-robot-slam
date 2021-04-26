@@ -1,4 +1,4 @@
-function [lWv, rWv] = drivePoint(q, GOAL)
+function [V, W] = drivePoint(q, GOAL)
 
     Kh = 0.8;
     Kv = 0.4; 
@@ -18,7 +18,5 @@ function [lWv, rWv] = drivePoint(q, GOAL)
     pos_error = hypot(goal_x - pos_x, goal_y - pos_y);
     V = Kv * pos_error;
     V = min(V, 0.5);
-
-    [lWv, rWv] = VtoWheels(V, W);
 
 end

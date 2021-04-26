@@ -10,16 +10,9 @@ function path = findPath(map, start, goal)
     
     % compute the best path
     
-%     startx = start(1);
-%     starty = start(2);
-%     startDT = dtransform(starty,startx);
-%     if (isnan(startDT) || isinf(startDT))
-%         path = [];
-%         return;
-%     end
     goalx = goal(1); goaly = goal(2);
     
-    % Begin at the start
+    % begin at start coordinates
     path(1,:) = start;
     i = 2;
     
@@ -37,9 +30,9 @@ function path = findPath(map, start, goal)
         changey = change(2);
         
         % updating to next coordinates
-        xnew = lastx + changex;
-        ynew = lasty + changey;
-        path(i,:) = [xnew, ynew];
+        nextx = lastx + changex;
+        nexty = lasty + changey;
+        path(i,:) = [nextx, nexty];
         
         % if goal has been reached
         if (path(end,1) == goalx && path(end,2) == goaly)

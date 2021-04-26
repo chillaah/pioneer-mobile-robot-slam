@@ -4,11 +4,11 @@ function nodeid = neighbours(distanceMatrix, nodeid)
     % Input:
     %   distanceMatrix  (square symmetric matrix)
     %   nodeid          (scalar)
-    %   
+    %
     % Output:
     %   nodeid   (scalar)
     
-    row = distanceMatrix(nodeid,:);
-    nodeid = find(row ~= 0);
+    distMatRow = distanceMatrix(nodeid, :);
     
+    nodeid = find(distMatRow ~= 0);
 end
