@@ -19,44 +19,12 @@ load map2r3.mat
 m2r3 = data(1).image;
 
 [r, red] = hsvRed(m1r1);
-countr = 0; sumri = 0; sumrj = 0;
-
 for i = 1:size(m1r1, 1)
-    for j = 1:size(m1r1, 2)
-        if r(i, j) == 1
-            sumri = sumri + 1;
-            sumrj = sumrj + 1;
-            countr = countr + 1;
-        end
-    end
-end
-
-if countr >= 15
-    isRed = true;
-    avgri = sumri/countr; avgj = sumrj/countj;
-end
-
-
-[b, blue] = hsvBlue(m1r1);
-
-for i = 1:size(m1r1, 1)
-    for j = 1:size(m1r1, 2)
-        if b(i, j) == 1
-            sumbi = sumbi + 1;
-            sumbj = sumbj + 1;
-            countb = countb + 1;
-        end
-    end
-end
-
-if countb >= 15
-    isBlue = true;
-    avgbi = sumbi/countb; avgbj = sumbj/countbj;
-end
-
+    for j = 
+blue = hsvBlue(m1r1);
 yellow = hsvYellow(m1r1);
 
-% idisp(red);
+idisp(red);
 
 % end
 % write all your helper functions below and call them inside the function sense
