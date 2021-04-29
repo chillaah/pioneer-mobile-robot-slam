@@ -31,17 +31,11 @@ for i = 1:size(m1r1, 1)
         end
     end
 end
-
-if countr >= 15
-    isRed = true;
-    avgri = sumri/countr; avgrj = sumrj/countr;
-    distR = hypot(avgri, avgrj);
-end
-
+avgri = sumri/countr; avgrj = sumrj/countr;
+distR = hypot(avgri, avgrj);
 
 [b, blue] = rgbBlue(im);
 countb = 0; sumbi = 0; sumbj = 0;
-
 for i = 1:size(m1r1, 1)
     for j = 1:size(m1r1, 2)
         if b(i, j) == 1
@@ -51,16 +45,12 @@ for i = 1:size(m1r1, 1)
         end
     end
 end
+avgbi = sumbi/countb; avgbj = sumbj/countb;
+distB = hypot(avgbi, avgbj);
 
-if countb >= 15
-    isBlue = true;
-    avgbi = sumbi/countb; avgbj = sumbj/countb;
-    distB = hypot(avgbi, avgbj);
-end
 
 [y, yellow] = hsvYellow(im);
 county = 0; sumyi = 0; sumyj = 0;
-
 for i = 1:size(m1r1, 1)
     for j = 1:size(m1r1, 2)
         if y(i, j) == 1
@@ -70,27 +60,21 @@ for i = 1:size(m1r1, 1)
         end
     end
 end
+avgyi = sumyi/county; avgyj = sumyj/county;
+distY = hypot(avgyi, avgyj);
 
-if county >= 15
-    isYellow = true;
-    avgyi = sumyi/county; avgyj = sumyj/county;
-    distY = hypot(avgyi, avgyj);
-end
-
-c = [r b y];
-
-for i = 1:length(c)
-    stats = regionprops('table', c(i),'Centroids',...
+for i = 1:3
+    if i == 1; c = r; g = red;
+    elseif i == 2; c = b; g = blue;
+    else; c = y; g = yellow;
+    end
+    
+    stats = regionprops('table', c,'Centroid',...
         'MajorAxisLength','MinorAxisLength');
-    bb = cat(1,stats.Centroids);
-%     imshow(r)
-%     hold on
-%     plot(stats.BoundingBox(:,1), stats.BoundingBox(:,2),'y*')
-%     hold off
-    J = imcrop(im, bb);
-    imshow(im);
+    bb = cat(1,stats.Centroid);
+    imshow(g)
     hold on
-    imshow(J);
+    plot(bb(:,1), bb(:,2),'y*')
     hold off
 end
 
