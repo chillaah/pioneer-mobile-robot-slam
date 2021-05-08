@@ -8,6 +8,7 @@ for t=1:num_steps
         old_ticks = data(t).encoders;
         odom_pose = [0 0 0]';        
     else
+        % odomTestData(t).encoders is [left_ticks right_ticks]
         new_ticks = data(t).encoders;
         [d , dth] = get_odom(new_ticks,old_ticks);        
         odom_pose = move(odom_pose,d,dth);
@@ -24,12 +25,19 @@ for t=1:num_steps
 end
 
 function [d , dth] = get_odom(new_ticks,old_ticks)
+%inputs: new_ticks , old_ticks both are 1x2 vectors [left_ticks right_ticks]
+%outputs: d  distance traveled in meters
+%        dt angle rotated in radians 
 
 
 
 end
 
 function next_pose = move(current_pose, d , dth)
+%inputs: current_pose is a 3x1 vector [x; y; theta] of the robot (theta in radians)
+%        d  distance traveled in meters
+%        dt angle rotated in radians 
+%outputs: next_pose is a 3x1 vector [x; y; theta] of the robot (theta in radians)
 
 
 end
