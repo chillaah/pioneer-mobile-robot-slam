@@ -1,4 +1,4 @@
-load map2r3.mat
+load map1r1.mat
 
 N = 370; % number of ticks per rotation
 D = 0.065; % robot wheel diameter [m]
@@ -21,18 +21,14 @@ for t=1:num_steps
     odom_traj(:,t) = odom_pose;
 end
 
-% NOT REQUIRED IN GRADER
 figure();
 hold on
 grid on
 box on
-
+% NOT REQUIRED IN GRADER
 for t=1:num_steps
-    
-    r = odom_traj(:,t);
-    plotTraj(r(1), r(2), r(3));
-    pause(0.01);
-    
+    plot_robot(odom_traj(:,t));
+    pause(0.1);
 end
 hold off
 
@@ -41,22 +37,22 @@ function [d , dth] = get_odom(new_ticks,old_ticks)
 %outputs: d  distance traveled in meters
 %        dt angle rotated in radians 
 
-    newLeft = new_ticks(1);
-    newRight = new_ticks(2);
+newLeft = new_ticks(1);
+newRight = new_ticks(2);
 
-    oldLeft = old_ticks(1);
-    oldRight = old_ticks(2);
+oldLeft = old_ticks(1);
+oldRight = old_ticks(2);
 
-    leftdiff = newLeft - oldLeft;
-    rightdiff = newRight - oldRight;
+leftdiff = newLeft - oldLeft;
+rightdiff = newRight - oldRight;
 
-    left = (2 * pi * 0.065/2 * leftdiff) / 370;
+left = (2 * pi * 0.065/2 * leftdiff) / 370;
 
-    right = (2 * pi * 0.065/2 * rightdiff) / 370;
+right = (2 * pi * 0.065/2 * rightdiff) / 370;
 
-    d = (left + right)  / 2;
+d = (left + right)  / 2;
 
-    dth = (right - left) / 0.15; % assuming L is 2r
+dth = (right - left) / 0.15; % assuming L is 2r
 
 end
 
@@ -66,18 +62,27 @@ function next_pose = move(current_pose, d , dth)
 %        dt angle rotated in radians 
 %outputs: next_pose is a 3x1 vector [x; y; theta] of the robot (theta in radians)
 
-    currx = current_pose(1);
-    curry = current_pose(2);
-    currtheta = current_pose(3);
+% currx = current_pose(1);
+% curry = current_pose(2);
+% currtheta = current_pose(3);
+% 
+% movedx = d * cos(dth);
+% movedy = d * sin(dth);
+% movedtheta = dth;
+% 
+% nextx = currx + movedx;
+% nexty = curry + movedy;
+% nexttheta = wrapToPi(currtheta + movedtheta);
+% 
+% next_pose = [nextx; nexty; nexttheta];
 
-    movedx = d * cos(currtheta);
-    movedy = d * sin(currtheta);
-    movedtheta = dth;
+next_pose = [current_pose(1)+d*cos(dth); current_pose(2)+d*sin(dth
 
-    nextx = currx + movedx;
-    nexty = curry + movedy;
-    nexttheta = currtheta + movedtheta;
+end
 
-    next_pose = [nextx; nexty; nexttheta];
+% NOT REQUIRED IN GRADER     
+function plot_robot(r)
+ 
+    plotFrame(r(1), r(2), r(3));
 
 end
