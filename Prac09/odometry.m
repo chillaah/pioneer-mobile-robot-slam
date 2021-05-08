@@ -36,7 +36,7 @@ for t=1:num_steps
 end
 hold off
 
-function [d , dth] = get_odom(new_ticks, old_ticks)
+function [d, dth] = get_odom(new_ticks, old_ticks)
 %inputs: new_ticks , old_ticks both are 1x2 vectors [left_ticks right_ticks]
 %outputs: d  distance traveled in meters
 %        dt angle rotated in radians 
