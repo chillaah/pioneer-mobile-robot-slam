@@ -2,11 +2,11 @@ function plotTraj(x, y, theta)
 
     % lines
     linex = [ 0.1;
-                 0;
-                 1 ];
+                0;
+                1 ];
 
     liney = [    0;
-              0.1;
+               0.1;
                  1 ];
 
     % rotational matrix
