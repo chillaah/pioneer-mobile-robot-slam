@@ -1,4 +1,4 @@
-function next_pose = move(current_pose, d, dth)
+function [next_pose, theta] = move(current_pose, d, dth)
 
     currx = current_pose(1);
     curry = current_pose(2);
@@ -10,8 +10,9 @@ function next_pose = move(current_pose, d, dth)
     
     nextx = currx + movedx;
     nexty = curry + movedy;
-    nexttheta = currtheta + movedtheta;
+    nexttheta = wrapToPi(currtheta + movedtheta);
 
     next_pose = [nextx; nexty; nexttheta];
-
+    theta = currtheta;
+    
 end

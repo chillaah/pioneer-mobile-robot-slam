@@ -23,7 +23,7 @@ function plotTraj(x, y, theta)
     ploty = [transy(2), y, transx(2)];
 
     % plot
-    plot(plotx(1:2), ploty(1:2), 'b');
-    plot(plotx(2:3), ploty(2:3), 'r');
+    % plot(plotx(1:2), ploty(1:2), 'bo');
+    plot(plotx(2:3), ploty(2:3), 'ko');
 
 end
