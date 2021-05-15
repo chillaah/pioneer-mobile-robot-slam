@@ -59,9 +59,23 @@ end
 %     and the matrix R (the covariance of the odometry noise). 
 % The function performs a prediction step of the EKF localiser and returns the mean and covariance of the robot.      
 function [xt,S] = predict_step(xt,S,d,dth,R)
-
     
+    % function accepts current pose, distance travelled and change in
+    % heading angle to output the next pose
+    [xt, theta] = move(xt, d, dth);
     
+    % Jx is the jacobian w.r.t. to the state variables of the next pose
+    Jx = [ 1 0 -d*sin(theta);
+           0 1  d*cos(theta);
+           0 0       1       ];
+    
+    % Ju is the jacobian w.r.t. to the input variables of the next pose
+    Ju = [ cos(theta) 0;
+           sin(theta) 0;
+               0      1 ];
+    
+    % updating covariance matrix
+    S = Jx*S*Jx' + Ju*R*Ju';
     
 end
 
@@ -75,17 +89,71 @@ end
 % The function performs an update step of the EKF localiser and returns the mean and covariance of the robot. 
 function [x,S] = update_step(map,z,x,S,Q)
 
-    
-    
-    
+    % looping over all landmarks for each beacon
+    for i = 1:size(z, 1)
+
+        % landmark locations
+        xl = map(i, 1);
+        yl = map(i, 2);
+
+        % range and bearing
+        r = z(i, 1);
+        % b = z(:, 2);
+
+        % robot pose
+        xr = x(1);
+        yr = x(2);
+        thetar = x(3);
+
+        % G matrix
+        G = [  -(xl-xr)/r    -(yl-yr)/r   0;
+              (yl-yr)/r^2  -(xl-xr)/r^2  -1 ];
+
+        % kalman gain
+        K = S * G' * (G * S * G' + Q)^-1;
+
+        % range and bearing measurement model
+        h = [  sqrt((xr-xl)^2 + (yr-yl)^2);
+              atan2(yl-yr, xl-xr) - thetar ]';
+        h(2) = wrapToPi(h(2));
+
+        % mean of the robot
+        cal = (z(i, :) - h)';
+        cal(2) = wrapToPi(cal(2));
+        x = x + K * cal;
+        x = [      x(1); 
+                   x(2); 
+              wrapToPi(x(3)) ];
+
+        % covariance of the robot
+        I = eye(length(K));
+        S = (I - K * G) * S;
+
+    end
+     
 end    
 
 % ----------------------------
 % write the extra functions that you need and call them in the above two functions
 
+function [next_pose, theta] = move(current_pose, d, dth)
 
+    currx = current_pose(1);
+    curry = current_pose(2);
+    currtheta = current_pose(3);
 
+    movedx = d * cos(currtheta);
+    movedy = d * sin(currtheta);
+    movedtheta = dth;
+    
+    nextx = currx + movedx;
+    nexty = curry + movedy;
+    nexttheta = wrapToPi(currtheta + movedtheta);
 
+    next_pose = [nextx; nexty; nexttheta];
+    theta = currtheta;
+
+end
 
 function plot_cov(x,P,nSigma)
     P = P(1:2,1:2); 
@@ -96,5 +164,5 @@ function plot_cov(x,P,nSigma)
         el = V*sqrtm(D)*y;
         el = [el el(:,1)]+repmat(x,1,size(el,2)+1);
         line(el(1,:),el(2,:));
-    end;
+    end
 end
