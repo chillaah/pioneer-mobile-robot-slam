@@ -116,7 +116,6 @@ function [mu, Sigma] = initLandmarks(z,Q,xr)
         % angle
         ang = bearing + postheta;
         
-        % dist
         x = range * cos(ang);
         y = range * sin(ang);
         
@@ -127,8 +126,7 @@ function [mu, Sigma] = initLandmarks(z,Q,xr)
         % mu output
         mu = [    mu;
                muCol ];
-        
-        % cross matrix
+
         N = zeros(size(Sigma,1), 2);
         
         % rot mat
@@ -144,48 +142,40 @@ function [mu, Sigma] = initLandmarks(z,Q,xr)
     end
     
 end 
-
 function [mu, Sigma] = update_step(landmarkID,zi,Q,mu,Sigma,xr)
 
     % assigning motion
-    posx = xr(1);
-    posy = xr(2);
-    postheta = xr(3);
+    xr = xr(1);
+    yr = xr(2);
+    thetar = xr(3);
+
+    % range = zi(1);
+    % bearing = zi(2);
     
-    % landmarks
     land = 2 * landmarkID;
-    yl = mu(land); xl = mu(land - 1);
+    xl = mu(land - 1); yl = mu(land);
     
-    % range and bearing measurement model
-    h = [   sqrt((posx-xl)^2 + (posy-yl)^2);
-          atan2(yl-posy, xl-posx) - postheta ]';
+    h = [   sqrt((xr-xl)^2 + (yr-yl)^2);
+        atan2(yl-yr, xl-xr) -  thetar ]';
     h(2) = wrapToPi(h(2));
     
-    % G matrix
     r = h(1);
-    G = [    -(xl-posx)/r      -(yl-posy)/r;
-          (yl-posy)/(r^2)  -(xl-posx)/(r^2) ];
     
-    % cross  matrix
-    N = zeros(2, length(Sigma));
+    % G matrix
+    G = [    -(xl-xr)/r      -(yl-yr)/r;
+          (yl-yr)/(r^2)  -(xl-xr)/(r^2) ];
     
-    % G update
-    G = [ N(:, 1:land-2), G, N(:, land+1:end) ];
+    zs = zeros(2, length(Sigma));
+    G = [zs(:, 1 : land-2) G zs(:, land + 1 :end)];
 
-    % kalman gain
-    K = Sigma * G' * (G * Sigma * G' + Q)^-1;
+    K = Sigma*G'*(G*Sigma*G'+Q)^-1;
 
-    % mean
-    cal = (zi - h)';
-    cal(2) = wrapToPi(cal(2));
-    mu = mu + K * cal;
-    mu = [       mu(1);
-                 mu(2);
-           wrapToPi(mu(3)) ];
-    
-    % covariance
-    I = eye(length(K));
-    Sigma = (I - K * G) * Sigma;
+    I = eye(length(Sigma));
+
+    update = (zi-h);
+    update = [update(1), wrapToPi(update(2))];
+    mu = mu + K*update';
+    Sigma = (I-K*G)*Sigma;
     
 end
 % -----------Add your functions below this line and use them in the two functions above---
