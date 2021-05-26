@@ -1,5 +1,5 @@
 # pioneer-mobile-robot-slam
-SLAM Implementation on a Pioneer P3-DX Mobile Robot
+SLAM Implementation on a Pioneer 3-DX Mobile Robot
 
 Module 1 - Robot Motion & Control  
 Module 2 - Planning  
