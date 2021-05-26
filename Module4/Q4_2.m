@@ -110,12 +110,13 @@ function [mu, Sigma] = initLandmarks(z,Q,xr)
     for i = 1:numBeacs
         
         % range and bearing
-        range = z(:,1);
-        bearing = z(:,2);
+        range = z(i,1);
+        bearing = z(i,2);
         
         % angle
         ang = bearing + postheta;
         
+        % dist
         x = range * cos(ang);
         y = range * sin(ang);
         
@@ -126,7 +127,8 @@ function [mu, Sigma] = initLandmarks(z,Q,xr)
         % mu output
         mu = [    mu;
                muCol ];
-
+        
+        % cross matrix
         N = zeros(size(Sigma,1), 2);
         
         % rot mat
@@ -139,43 +141,51 @@ function [mu, Sigma] = initLandmarks(z,Q,xr)
         Sigma = [ Sigma         N;
                      N' sigmaDiag ];
         
-    end
+    end  
     
 end 
 function [mu, Sigma] = update_step(landmarkID,zi,Q,mu,Sigma,xr)
-
+    
     % assigning motion
-    xr = xr(1);
-    yr = xr(2);
-    thetar = xr(3);
-
-    % range = zi(1);
-    % bearing = zi(2);
+    posx = xr(1);
+    posy = xr(2);
+    postheta = xr(3);
     
+    % landmarks
     land = 2 * landmarkID;
-    xl = mu(land - 1); yl = mu(land);
+    yl = mu(land); xl = mu(land - 1);
     
-    h = [   sqrt((xr-xl)^2 + (yr-yl)^2);
-        atan2(yl-yr, xl-xr) -  thetar ]';
+    % range and bearing measurement model
+    range = sqrt((posx - xl)^2 + (posy - yl)^2);
+    bearing = atan2(yl - posy, xl - posx) - postheta;
+    h = [  range;
+          bearing ]';
     h(2) = wrapToPi(h(2));
     
-    r = h(1);
-    
     % G matrix
-    G = [    -(xl-xr)/r      -(yl-yr)/r;
-          (yl-yr)/(r^2)  -(xl-xr)/(r^2) ];
+    r = h(1);
+    G = [    (xl-posx)/r        (yl-posy)/r;
+          -(yl-posy)/(r^2)  (xl-posx)/(r^2) ];
     
-    zs = zeros(2, length(Sigma));
-    G = [zs(:, 1 : land-2) G zs(:, land + 1 :end)];
+    % cross  matrix
+    N = zeros(2, length(Sigma));
+    
+    % G update
+    pre = N(:, 1:land-2);
+    post = N(:, land+1:end);
+    G = [ pre, G, post ];
 
-    K = Sigma*G'*(G*Sigma*G'+Q)^-1;
+    % kalman gain
+    K = Sigma * G' * (G * Sigma * G' + Q)^-1;
 
-    I = eye(length(Sigma));
-
-    update = (zi-h);
-    update = [update(1), wrapToPi(update(2))];
-    mu = mu + K*update';
-    Sigma = (I-K*G)*Sigma;
+    % mean
+    cal = (zi - h)';
+    cal(2) = wrapToPi(cal(2));
+    mu = mu + K * cal;
+    
+    % covariance
+    I = eye(length(K));
+    Sigma = (I - K * G) * Sigma; 
     
 end
 % -----------Add your functions below this line and use them in the two functions above---

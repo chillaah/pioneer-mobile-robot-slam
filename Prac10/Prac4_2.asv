@@ -2,34 +2,12 @@
 % init;
 close all; clear; clc
 % when developing offline, you need to load one of the data files 
-load map1r3.mat
+load map1r1.mat
 
-% In Grader, we give you the map
-% M is the map with size 5x3 where M(i,:) = [beacon_id, x, y]
-% M = get_map();
-
-% When developing and testing offline, you need to choose the correct map
-% that matches your data.
-% Map 1
-M = [
-    30, 0.316, 1.856;
-    27, 1.716, 1.74;
-    57, 0.272, 0.708;
-    45, 0.944, 0.18;
-    39, 1.788, 0.216;
-    ];
-
-% Map 2
-% M = [
-%     39, 0.968, 1.792;
-%     30, 0.252, 1.336;
-%     57, 0.264, 0.364;
-%     27, 1.604, 0.208;
-%     45, 1.832, 1.384;
-%     ];
 
 % In Grader, we give you the number of steps. 
 % num_steps = get_numsteps();
+
 % When developing offline, the number of steps is the length of the run
 % you loaded 
 num_steps = length(data);
@@ -41,143 +19,73 @@ num_steps = length(data);
 mu = [data(1).pose.x; data(1).pose.y ; data(1).pose.theta];
 
 % you can choose sigma at t=1
-Sigma = diag([0.1 0.1 5*pi/180]).^2;
+Sigma = diag([0.1 0.1 5*pi/180]).^2; 
 
 % estimate the pose of the robot at each time step and store it in trj_est 
 trj_est = zeros(num_steps,3);
+
+% estimate the position of the beacons and stor it in M_est
+% M_est(i,:) = [beacon_id, beacon_x,beacon_y,variance_x,variance_y,covariance_xy]. 
+M_est = zeros(5,6);
 
 %The first pose is known
 trj_est(1,:) = mu;
 
 % initially
 old_ticks = [ 0, 0 ];
-xt = mu;
-S = Sigma;
-%  map = M(:,2:3);
 
-R = [   0.01^2     0;
-        0         0.12^2 ];
-std1 = 0.2;
-std2 = 35/5 + 0.1;
-Q = [ std1^2     0;
-       0   std2^2 ];
+R = [ 0.0001^2   0;
+      0       0.014 ];
+std = 7;
+Q = [ 0.042 0;
+        0 std^2 ];
 
 for t = 2:num_steps
-    
     % move
+    % In Grader, you have to use the function get_encoders(time_step).
+    % new_ticks = get_encoders(t);    
+    % when working offline, use 
     new_ticks = data(t).encoders;
     
     [d, dth] = get_odom(new_ticks, old_ticks);
     old_ticks = new_ticks;
     
-    [xt,S] = predict_step(xt,S,d,dth,R);
+    [mu,Sigma] = predict_step(mu,Sigma,d,dth,R);
     
     % sense
+    % In Grader, you get the image using the function get_image(time_step);
+    % I = get_image(t);
+    % when working offline you use
     I = data(t).image;
     
     Z = updatedSense(I);
     
-%    logic = isempty(Z);
-%    if logic == 0
-%        Z = Z(:,2:3); % without beacon ID
-%    end
-    
-    [xt,S] = update_step(M,Z,xt,S,Q);
-    
-    trj_est(t, :) = xt;
-    % disp(t);
-end
-
-disp(trj_est);
-
-% write your helper functions below
-
-function [xt,S] = predict_step(xt,S,d,dth,R)
-    
-    theta =  xt(3);
-    
-    % Jx is the jacobian w.r.t. to the state variables of the next pose
-    Jx = [ 1 0 -d*sin(theta);
-           0 1  d*cos(theta);
-           0 0       1       ];
-    
-    % Ju is the jacobian w.r.t. to the input variables of the next pose
-    Ju = [ cos(theta) 0;
-           sin(theta) 0;
-               0      1 ];
-    
-    % updating covariance matrix
-    S = Jx*S*Jx' + Ju*R*Ju';
-    
-    % function accepts current pose, distance travelled and change in
-    % heading angle to output the next pose
-    xt = move(xt, d, dth);
-    
-end
-
-function [x,S] = update_step(M,Z,x,S,Q)
-
-    % beacon data ordering
-    dim = 2;
-    point = [];
-    z = zeros(size(M,1), dim);
-    if ~isempty(Z)
-        for j = 1:size(Z, 1)
-            for i = 1:size(M, 1)
-                if Z(j) == M(i, 1)
-                    point = [ point;
-                                i   ];
-                end
-            end
-        end
+        if isempty(z)
+        continue;
     end
     
-    if ~isempty(point)
-        z(point, :) = Z(:, 2:3);
-    end
-
-    % looping over all landmarks for each beacon
-    map = M(:, 2:3);
-    for i = 1:size(z, 1)
+    z = Z(:, 2:3);
+    
+    for j = 1:size(z, 1)
         
-        check = z(i,1);
-        
-        if check == 0
-            continue
-        end
+        if j == 1
             
-            % landmark locations
-            xl = map(i, 1);
-            yl = map(i, 2);
+            [mu, Sigma] = initLandmarks(z,Q,mu,Sigma);
+            
+        else
 
-            % robot pose
-            xr = x(1);
-            yr = x(2);
-            thetar = x(3);
-
-            % range and bearing measurement model
-            h = [  sqrt((xr-xl)^2 + (yr-yl)^2);
-                  atan2(yl-yr, xl-xr) - thetar ]';
-            h(2) = wrapToPi(h(2));
-            r = h(1);
-
-            % G matrix
-            G = [  -(xl-xr)/r    -(yl-yr)/r   0;
-                  (yl-yr)/(r^2)  -(xl-xr)/(r^2)  -1 ];
-
-            % kalman gain
-            K = S * G' * (G * S * G' + Q)^-1;
-
-            % mean of the robot
-            cal = (z(i,:)' - h(1));
-            cal(2) = wrapToPi(cal(2));
-            x = x + K * cal;
-
-            % covariance of the robot
-            I = eye(length(K));
-            S = (I - K * G) * S;
-    end 
+            zi = z(j, :);
+        
+            [mu, Sigma] = update_step(j,zi,Q,mu,Sigma);
+        
+        end
+        
+    end
+    
+    trj_est(t, :) = mu(1:3);
+    
 end
+% write your helper functions below
 
 function [d, dth] = get_odom(new_ticks, old_ticks)
 
@@ -203,11 +111,146 @@ function [d, dth] = get_odom(new_ticks, old_ticks)
 
 end
 
-function nextpose = move(currentpose, d, dth)
+function nextpose = move(pose, d, dth)
 
-    nextpose =  [ currentpose(1) + d * cos(currentpose(3));
-                  currentpose(2) + d * sin(currentpose(3));
-                         currentpose(3) + dth              ];
+    nextpose =  [ pose(1) + d * cos(pose(3));
+                  pose(2) + d * sin(pose(3));
+                  pose(3) + dth              ];
+    
+end
+
+function [mu,Sigma] = predict_step(mu,Sigma,d,dth,R)
+  
+    % function accepts current pose, distance travelled and change in
+    % heading angle to output the next pose
+    % mu has 13 elements in SLAM
+    % decompose
+    pose = mu(1:3);
+    remainder = mu(4:end);
+    mu = [ move(pose, d, dth);
+                remainder     ];
+    
+    % angle
+    angle = mu(3);
+    
+    % Jx is the jacobian w.r.t. to the state variables of the next pose
+    JxStep = [ 1 0 -d*sin(angle);
+               0 1  d*cos(angle);
+               0 0       1       ];
+    
+    % Ju is the jacobian w.r.t. to the input variables of the next pose
+    JuStep = [ cos(angle) 0;
+               sin(angle) 0;
+                   0      1 ];
+    
+    % full Jx jacobian for SLAM
+    numLand = size(Sigma, 1) - size(pose, 1);
+    paddingZeros = zeros(size(JxStep, 1), numLand);
+    paddingOnes = eye(numLand);
+    JxSLAM = [        JxStep  paddingZeros;
+               paddingZeros'   paddingOnes ];
+           
+   % full Ju jacobian for SLAM
+   paddingZeros2 = zeros(numLand, size(JuStep, 2));
+   JuSLAM = [        JuStep;
+              paddingZeros2 ];
+             
+    % updating covariance matrix for SLAM
+    Sigma = JxSLAM * Sigma * JxSLAM' + JuSLAM * R * JuSLAM'; 
+    
+end
+
+function [mu, Sigma] = initLandmarks(z,Q,mu,Sigma)
+
+    % looping over landmarks
+    iter = size(z, 1);
+    for i = 1:iter
+
+        % decompose
+        pose = mu(1:3);
+        xr = pose(1);
+        yr = pose(2);
+        thetar = pose(3);
+
+        % range and bearing measurements
+        range = z(i, 1);
+        bearing = z(i, 2);
+
+        % landmark initialization
+        % expanding state vector with map coordinates
+        % of new landmark
+        totAng = wrapToPi(thetar + bearing);
+        xlnew = xr + range * cos(totAng);
+        ylnew = yr + range * sin(totAng);
+        lnew = [ xlnew;
+                 ylnew ];
+        mu = [   mu;
+               lnew ];
+
+        % jacobian of the landmark initialization 
+        % function w.r.t to range and bearing
+        Lz = [ cos(totAng) -range * sin(totAng);
+               sin(totAng)  range * cos(totAng) ];
+
+        % sensor noise covariance
+        LQL = Lz * Q * Lz';
+
+        % padding covariance
+        paddingZeros = zeros(size(Sigma, 1), size(lnew, 1));
+        Sigma = [         Sigma  paddingZeros;
+                  paddingZeros'           LQL ];
+    end
+
+end
+
+function [mu, Sigma] = update_step(j,zi,Q,mu,Sigma)
+   
+    % decompose
+    pose = mu(1:3);
+    xr = pose(1);
+    yr = pose(2);
+    thetar = pose(3);
+    lands = 2 * j;
+    posy = lands + size(pose, 1);
+    posx = lands + size(pose, 1) - 1;
+    
+    % landmark positions
+    xl = mu(posx);
+    yl = mu(posy);
+    
+    % range and bearing measurement model
+    h = [  sqrt((xr-xl)^2 + (yr-yl)^2);
+          atan2(yl-yr, xl-xr) - thetar ];
+    h(2) = wrapToPi(h(2));
+    r = h(1);
+    
+    % left G matrix
+    Gleft = [  -(xl-xr)/r    -(yl-yr)/r   0;
+              (yl-yr)/r^2  -(xl-xr)/r^2  -1 ];
+    
+    % right G matrix
+    Gright = [    (xl-xr)/r    (yl-yr)/r;
+               -(yl-yr)/r^2  (xl-xr)/r^2 ];
+            
+    % G matrix in SLAM
+    limitMid = lands - size(pose, 1) + 1;
+    limitEnd = limitMid + size(pose, 1);
+    paddingZeros = zeros(size(Gleft, 1), size(Sigma, 1) - size(pose, 1)); 
+    Gslam = [ Gleft, paddingZeros(:, 1:limitMid), Gright,...
+                     paddingZeros(:, limitEnd:end)          ];
+    
+    % kalman gain
+    K = Sigma * Gslam' * (Gslam * Sigma * Gslam' + Q)^-1;
+    
+    % mean in SLAM
+    cal = (zi' - h)';
+    cal(2) = wrapToPi(cal(2));
+    mu = mu + K * [ cal(1);
+                    cal(2) ];
+    
+    % covariance in SLAM
+    I = eye(length(K));
+    Sigma = (I - K * Gslam) * Sigma;   
     
 end
 
@@ -489,3 +532,4 @@ maskedRGBImage = RGB;
 maskedRGBImage(repmat(~BW,[1 1 3])) = 0;
 
 end
+
