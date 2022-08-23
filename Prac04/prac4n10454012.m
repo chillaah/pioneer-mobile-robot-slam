@@ -6,30 +6,29 @@ function prac4n10454012(robot)
 	% The function needs to start with the following call; 
 	%otherwise, your code will not run during automarking.
 	robot.powerON();
-    
-    [pos_x, pos_y] = robot.getTruePose();
-    
-    % line equation
-    % -x -y = 0 in ax+ by + c = 0
-    a = -1; b = -1; c = 0;
-    LINE = [a b c];
-    
-    % alternativelty
-    % y = -(a/b)*x - c/b in y = m*x + c
-    m = -a/b;
-    intercept = -c/b;
-    
-    % closest point calculation
-    syms x
-    d_diff = diff(hypot((x - pos_x),(m*x + intercept - pos_y)));
-    
-    dist = solve(d_diff);
-    
-    goal_x = dist;
-    goal_y = -(a/b)*dist - c/b;
-    GOAL = [goal_x, goal_y];
- 
+     
     while (true)
+        
+        [pos_x, pos_y] = robot.getTruePose();
+
+        % line equation
+        % -x -y = 0 in ax+ by + c = 0
+        a = -1; b = -1; c = 0;
+        LINE = [a b c];
+
+        % alternativelty
+        % y = -(a/b)*x - c/b in y = m*x + c
+        m = -a/b;
+        intercept = -c/b;
+
+        % closest point calculation
+        syms x
+        d_diff = diff(hypot((x - pos_x),(m*x + intercept - pos_y)));
+        dist = solve(d_diff);
+
+        goal_x = dist;
+        goal_y = -(a/b)*dist - c/b;
+        GOAL = [goal_x, goal_y];
         
         % heading towards point
         [pos_x, pos_y, pos_theta] = robot.getTruePose();
@@ -42,15 +41,11 @@ function prac4n10454012(robot)
         tol_x = abs(goal_x - pos_x);
         tol_y = abs(goal_y - pos_y);
 
-        tol = hypot(tol_x, tol_y)
-        dif_test = [pos_x, pos_y, 1]*[a, b, c]' / sqrt(a^2 + b^2)
-        tol;
+        tol = hypot(tol_x, tol_y);
+        
         % while within 40cm of goal
-        if tol < 40/100
-            tol
-            return
-            %robot.setMotorVel(0, 0);
-            %return
+        if tol < 40/100 
+            
             % line following
             safetyFactor = 1; % +/- 1 second
             tic

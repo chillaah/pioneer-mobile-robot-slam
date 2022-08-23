@@ -4,7 +4,7 @@ idisp(im);
 
 % boring elevator music
 [audio, sampleRate] = audioread('elevator.mp3');
-sound(audio, 0.5*sampleRate);
+sound(audio, sampleRate);
 
 % play
 pause(10);

@@ -40,6 +40,11 @@ std = 7;
 Q = [ 0.042 0;
         0 std^2 ];
 
+
+M_est(:,1) = [30; 27; 57; 45; 39];
+beacon_ids = M_est(:,1);
+starting_array = zeros(1, 5);
+
 for t = 2:num_steps
     % move
     % In Grader, you have to use the function get_encoders(time_step).
@@ -61,43 +66,46 @@ for t = 2:num_steps
     Z = updatedSense(I);
     
 %     % beacon data ordering
-%     dim = 2;
-%     point = [];
-%     z = zeros(size(M_est,1), dim);
-%     if ~isempty(Z)
-%         for j = 1:size(Z, 1)
-%             for i = 1:size(M_est, 1)
-%                 if Z(j) == M_est(i, 1)
-%                     point = [ point;
-%                                 i   ];
-%                 end
-%             end
+    if ~isempty(Z)
+        [~,index] = ismember(Z(:,1),beacon_ids,'rows');
+        z(index,:) = Z(:,2:3);
+        
+        for j = 1:length(index)
+            if starting_array(index(j))
+                [mu,Sigma] = update_step(index(j), z(index(j),:), Q, mu, Sigma);
+            
+            elseif ~starting_array(index(j))
+                [mu, Sigma] = initLandmarks(z, Q, mu, Sigma);
+                
+                starting_array(index(j)) = 1;
+            end
+        end
+    end 
+    
+%     for j = 1:size(z, 1)
+%         
+%         if j == 1
+%             
+%             [mu, Sigma] = initLandmarks(z,Q,mu,Sigma);
+%             
+%         else
+% 
+%             zi = z(j, :);
+%         
+%             [mu, Sigma] = update_step(j,zi,Q,mu,Sigma);
+%         
 %         end
+%         
 %     end
     
-    if ~isempty(point)
-        z(point, :) = Z(:, 2:3);
-    end
-    
-    % z = Z(:, 2:3);
-    
-    for j = 1:size(z, 1)
-        
-        if j == 1
-            
-            [mu, Sigma] = initLandmarks(z,Q,mu,Sigma);
-            
-        else
-
-            zi = z(j, :);
-        
-            [mu, Sigma] = update_step(j,zi,Q,mu,Sigma);
-        
-        end
-        
-    end
-    
     trj_est(t, :) = mu(1:3);
+    for j = 1:size(M_est,1)
+        M_est(j,2:3) = mu(2*j+2:2*j+3); 
+        out = Sigma(2*j+2:2*j+3,2*j+2:2*j+3);
+        M_est(j,4) = out(1);
+        M_est(j,5) = out(end);
+        M_est(j,6) = out(2);
+    end 
     
 end
 % write your helper functions below
