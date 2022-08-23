@@ -7,7 +7,7 @@ Module 3 - Bayesian Filtering & Localization
 Module 4 - Simultaneous Localization & Mapping (SLAM)
 
 # EKF SLAM implementation using real data
-<iframe src="https://giphy.com/embed/r89bl53lnHrbNRUere" width="480" height="383" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/r89bl53lnHrbNRUere">via GIPHY</a></p>
+![SLAM](https://media.giphy.com/media/r89bl53lnHrbNRUere/giphy.gif)
 
-![SLAM](https://giphy.com/embed/r89bl53lnHrbNRUere)
+
 
